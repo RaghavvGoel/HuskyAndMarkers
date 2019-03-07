@@ -1,0 +1,76 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <world name="default">
+    <include>
+      <uri>model://ground_plane</uri>
+    </include>
+
+    <include>
+      <uri>model://sun</uri>
+    </include>
+
+<model name='BuildingDefaultName'>
+    <link name='Goal1'>
+      <collision name='Goal1'>
+        <pose>40.0 0.0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='Goal1'>
+        <pose>40.0 0.0 0.0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>10.0</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+          <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/White</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+    </link>
+    <link name='Goal2'>
+      <collision name='Goal2'>
+        <pose>-40.0 0.0 0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>0.0</radius>
+            <length>0.1</length>
+          </cylinder>
+        </geometry>
+      </collision>
+      <visual name='Goal2'>
+        <pose>-40.0 0.0 0.0 0 -0 0</pose>
+        <geometry>
+          <cylinder>
+            <radius>10.0</radius>
+            <length>0.01</length>
+          </cylinder>
+        </geometry>
+          <material>
+          <script>
+            <uri>file://media/materials/scripts/gazebo.material</uri>
+            <name>Gazebo/White</name>
+          </script>
+        </material>
+      </visual>
+      <velocity_decay>
+        <linear>0</linear>
+        <angular>0</angular>
+      </velocity_decay>
+    </link>    
+    <static>1</static>
+</model>    
+</world>
+</sdf>

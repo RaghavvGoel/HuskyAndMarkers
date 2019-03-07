@@ -1,0 +1,78 @@
+('x3 in while: ', array([64]))
+('x3 in while: ', array([27]))
+('dy3 in while: ', array([-78]))
+('x3 in while: ', array([13]))
+('x3 in while: ', array([24]))
+('dy3 in while: ', array([95]))
+('x3 in while: ', array([90]))
+('x3 in while: ', array([51]))
+('x3 in while: ', array([89]))
+('x3 in while: ', array([57]))
+('x3 in while: ', array([62]))
+('x3 in while: ', array([78]))
+('x3 in while: ', array([68]))
+('x3 in while: ', array([55]))
+('x3 in while: ', array([3]))
+('x3 in while: ', array([9]))
+('x3 in while: ', array([42]))
+('x3 in while: ', array([4]))
+('x3 in while: ', array([15]))
+('x3 in while: ', array([32]))
+('x3 in while: ', array([-48]))
+('dy3 in while: ', array([64]))
+('x3 in while: ', array([-70]))
+('x3 in while: ', array([99]))
+('x3 in while: ', array([-35]))
+('dy3 in while: ', array([-82]))
+('dy3 in while: ', array([55]))
+('dy3 in while: ', array([19]))
+('x3 in while: ', array([-17]))
+('x3 in while: ', array([54]))
+('x3 in while: ', array([74]))
+('dy3 in while: ', array([-43]))
+('dy3 in while: ', array([31]))
+('dy3 in while: ', array([27]))
+('dy3 in while: ', array([60]))
+('x3 in while: ', array([60]))
+('x3 in while: ', array([64]))
+('dy3 in while: ', array([69]))
+('x3 in while: ', array([56]))
+('dy3 in while: ', array([73]))
+('x3 in while: ', array([45]))
+('x3 in while: ', array([64]))
+('x3 in while: ', array([0]))
+('x3 in while: ', array([-65]))
+('x3 in while: ', array([51]))
+('x3 in while: ', array([53]))
+('x3 in while: ', array([61]))
+('x3 in while: ', array([46]))
+('x3 in while: ', array([56]))
+('x3 in while: ', array([42]))
+('x3 in while: ', array([25]))
+('x3 in while: ', array([38]))
+('dy3 in while: ', array([-28]))
+('x3 in while: ', array([87]))
+('x3 in while: ', array([22]))
+('x3 in while: ', array([28]))
+Final Destinations: 
+('dest1: ', array([[-90., -43., -19., -49.,  -5., -99.,  -7., -44., -76., -56., -13.,
+        -85., -88., -42., -90.,  -7.,   0., -73., -35., -66., -22., -45.,
+        -90., -18., -63.],
+       [-30., -40., -85., -50., -81., -41., -13., -25., -57., -71., -76.,
+        -43., -58.,  -5., -83., -92., -31.,  -2., -24., -89.,  -4., -17.,
+        -35., -13., -93.]]))
+++++++++++++++++++++++++++++++++++++++
+('dest2: ', array([[ 41.,  54.,  80.,  15.,  87.,  67.,  27.,  29.,  92.,  53.,  62.,
+         27.,  87.,  50.,  32.,  81.,  92.,  26.,  61.,  69.,  76.,  44.,
+         82.,  98.,  18.],
+       [ 62.,   2.,   4.,  86.,  98.,   7.,  32.,  81.,  34.,  37.,   5.,
+         49.,  90.,  86.,  51.,  10.,  81.,  63.,  59.,  23.,  83.,   4.,
+         59.,  86.,  35.]]))
+++++++++++++++++++++++++++++++++++++++
+('dest: ', array([[ 74., -74.,  31.,  91.,  61.,  21.,  99.,   3.,  64.,  96.,  25.,
+        -58.,   7.,  94.,  94.,  33., -95.,  90.,   8.,  34.,  33.,   4.,
+         20.,  17.,  82.],
+       [  3., -95.,  67.,  23.,  34.,  81., -50.,  14.,  -9.,  69.,  57.,
+         77.,  48.,  37.,   1.,  42.,  55., -51.,  92.,  -7., -81.,  37.,
+        -91., -75.,   7.]]))
+++++++++++++++++++++++++++++++++++++++
