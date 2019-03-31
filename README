@@ -1,0 +1,8 @@
+The two folders above are divided in the following ways:
+1. Husky
+
+Consists of all the files for opening multi agent simulation in Gazebo.
+
+2. UsingPython2
+
+Consists all the codes written in python. 
