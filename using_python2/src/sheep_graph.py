@@ -27,13 +27,13 @@ T1 = plt.bar(x1 , Tavg_split , color = ((1.0, 0.0, 0.0)) , yerr = Std_split ,ali
 T4 = plt.bar(x2 , T_avg_no_split_high_n , color = ((0.0, 1.0, 0.0)) , yerr = Std_high_n ,align = 'center' ,width = width)
 
 
-plt.xticks(x , ('N=40' , 'N=100' , 'N=200' , 'N=500'))
+plt.xticks(x , ('N=40' , 'N=100' , 'N=200' , 'N=500'), fontsize=15)
 plt.legend((T4[0],T1[0]),('Without Splitting', ' With Splitting ') , loc = 2)
 #plt.legend((T[0],T[1],T[2],T[3], T[4] , T[5]),(  ), loc =2 )
 
 #plt.title('Avg Time for Completion with Equal Predators in Total', fontsize = 15)
-plt.xlabel('Number of Sheep Agents' , fontsize = 15)
-plt.ylabel('Average Time' , fontsize = 15)
+plt.xlabel('Number of Sheep Agents' , fontsize = 20)
+plt.ylabel('Average Time' , fontsize = 20)
 
 plt.show()
 
@@ -54,7 +54,7 @@ T2 = plt.bar(x1 , T_nosplit , color = ((0.0, 1.0, 0.0)) , yerr = Std_no_split ,a
 
 plt.legend((T1[0] , T2[0]) , ('With Splitting' , 'Without Splitting ') , loc = 1)
 #plt.title('Avg Time for 500 Agents',fontsize = 20)
-plt.ylabel('Time(s)' , fontsize = 15)
+plt.ylabel('Time(s)' , fontsize = 20)
 plt.xlim(0,0.7)
 plt.show()
 
@@ -70,14 +70,14 @@ G = plt.bar(x , T , color = ((0.0,1.0,0.0),(0.0,1.0,0.0),(0.0,1.0,0.0)), yerr = 
 
 plt.xlim(0,1.0)
 
-plt.xticks(x, ('predators=2' , 'predators=4' , 'predators=6'))
+plt.xticks(x, ('predators=2' , 'predators=4' , 'predators=6'), fontsize=15)
 #plt.legend((G[0],G[1],G[2],G[3]) , ('No Splitting'  , 'Splitting'))
 #plt.legend((G[0], G[3]) , ('Without Splitting'))
 
 
 #plt.title('Varying the No. of Predators' ,fontsize = '20')
-plt.ylabel('Time(s) to Complete' , fontsize = 15)
-plt.xlabel('No. of Predators' , fontsize = 15)
+plt.ylabel('Time(s) to Complete' , fontsize = 20)
+plt.xlabel('No. of Predators' , fontsize = 20)
 
 plt.show()
 

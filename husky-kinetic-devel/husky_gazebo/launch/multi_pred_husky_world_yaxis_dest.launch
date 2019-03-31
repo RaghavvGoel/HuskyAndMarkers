@@ -36,7 +36,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="world_name" value="$(find husky_gazebo)/worlds/multi_husky.world"/> <!-- world_name is wrt GAZEBO_RESOURCE_PATH environment variable $(arg world_name)-->
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
-    <arg name="gui" value="true"/>
+    <arg name="gui" value="true"/> <!-- made gui false to prevent it from opening -->
     <arg name="headless" value="false"/>
     <arg name="debug" value="false"/>
   </include>
@@ -49,64 +49,230 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="-10.0"/>
     <arg name="y" value="0.0"/>
-    <arg name="yaw" value="0.0"/>
-    <arg name="robot_namespace" value="Husky4"/>
-    <arg name="tf_prefix" value="H4_tf"/>
+    <arg name="x" value="9.0"/>
+    <arg name="yaw" value="$(arg pi)"/>
+    <arg name="robot_namespace" value="Husky0"/>
+    <arg name="tf_prefix" value="H0_tf"/>
   </include>
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="10.0"/>
     <arg name="y" value="0.0"/>
-    <arg name="yaw" value="$(arg pi)"/>
-    <arg name="robot_namespace" value="Husky5"/>
-    <arg name="tf_prefix" value="H5_tf"/>
+    <arg name="x" value="-9.0"/>
+    <arg name="yaw" value="0.0"/>
+    <arg name="robot_namespace" value="Husky1"/>
+    <arg name="tf_prefix" value="H1_tf"/>
   </include>
 
   
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="0.0"/>
-    <arg name="y" value="4.5"/>  
-    <arg name="yaw" value="$(arg pi)"/>   
-    <arg name="robot_namespace" value="Husky0"/>
-    <arg name="tf_prefix" value="H0_tf"/>
-  </include>  
-
-  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="0.0"/>
-    <arg name="y" value="1.5"/>   
-    <arg name="yaw" value="$(arg pi)"/> 
-    <arg name="robot_namespace" value="Husky1"/>
-    <arg name="tf_prefix" value="H1"/>
-  </include>  
-
-  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
-    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
-    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="0.0"/>
-    <arg name="y" value="-1.5"/>  
-    <arg name="yaw" value="0.0"/> 
+    <arg name="y" value="-1.5"/>
+    <arg name="x" value="0.0"/>  
+    <arg name="yaw" value="0.0"/>   
     <arg name="robot_namespace" value="Husky2"/>
-    <arg name="tf_prefix" value="H2"/>
-  </include>   
+    <arg name="tf_prefix" value="H2_tf"/>
+  </include>  
 
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
-    <arg name="x" value="0.0"/>
-    <arg name="y" value="-4.5"/>  
-    <arg name="yaw" value="0.0"/> 
+    <arg name="y" value="1.5"/>
+    <arg name="x" value="0.0"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
     <arg name="robot_namespace" value="Husky3"/>
     <arg name="tf_prefix" value="H3"/>
+  </include>  
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-1.5"/>
+    <arg name="x" value="-3.0"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky4"/>
+    <arg name="tf_prefix" value="H4"/>
+  </include>   
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="1.5"/>
+    <arg name="x" value="-3.0"/>  
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky5"/>
+    <arg name="tf_prefix" value="H5"/>
+  </include>   
+
+   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-1.5"/>
+    <arg name="x" value="3.0"/>  
+    <arg name="yaw" value="0.0"/>   
+    <arg name="robot_namespace" value="Husky6"/>
+    <arg name="tf_prefix" value="H6_tf"/>
+  </include>  
+
+   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="1.5"/>
+    <arg name="x" value="3.0"/>  
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky7"/>
+    <arg name="tf_prefix" value="H7"/>
   </include>   
 
 
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="4.5"/>
+    <arg name="x" value="4.5"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky8"/>
+    <arg name="tf_prefix" value="H8"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-4.5"/>
+    <arg name="x" value="4.5"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky9"/>
+    <arg name="tf_prefix" value="H9"/>
+  </include>  
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="4.5"/>
+    <arg name="x" value="1.5"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky10"/>
+    <arg name="tf_prefix" value="H10"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-4.5"/>
+    <arg name="x" value="1.5"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky11"/>
+    <arg name="tf_prefix" value="H11"/>
+  </include>      
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="4.5"/>
+    <arg name="x" value="-1.5"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky12"/>
+    <arg name="tf_prefix" value="H12"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-4.5"/>
+    <arg name="x" value="-1.5"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky13"/>
+    <arg name="tf_prefix" value="H13"/>
+  </include>        
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="4.5"/>
+    <arg name="x" value="-4.5"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky14"/>
+    <arg name="tf_prefix" value="H14"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-4.5"/>
+    <arg name="x" value="-4.5"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky15"/>
+    <arg name="tf_prefix" value="H15"/>
+  </include>
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="7.5"/>
+    <arg name="x" value="0.0"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky16"/>
+    <arg name="tf_prefix" value="H16"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-7.5"/>
+    <arg name="x" value="0.0"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky17"/>
+    <arg name="tf_prefix" value="H17"/>
+  </include>            
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="7.5"/>
+    <arg name="x" value="3.0"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky18"/>
+    <arg name="tf_prefix" value="H18"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-7.5"/>
+    <arg name="x" value="3.0"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky19"/>
+    <arg name="tf_prefix" value="H19"/>
+  </include>            
+
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="7.5"/>
+    <arg name="x" value="-3.0"/>   
+    <arg name="yaw" value="$(arg pi)"/> 
+    <arg name="robot_namespace" value="Husky20"/>
+    <arg name="tf_prefix" value="H20"/>
+  </include>  
+
+
+ <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+    <arg name="laser_enabled" value="$(arg laser_enabled)"/>
+    <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
+    <arg name="y" value="-7.5"/>
+    <arg name="x" value="-3.0"/>  
+    <arg name="yaw" value="0.0"/> 
+    <arg name="robot_namespace" value="Husky21"/>
+    <arg name="tf_prefix" value="H21"/>
+  </include>            
  
 </launch>

@@ -11,9 +11,9 @@ from math import *
 import copy
 from random import randint,choice
 
-pi =  22.0/7.0
+#pi =  22.0/7.0
 
-N = 4
+N = 20
 temppos = numpy.zeros((N,2))
 tempdi = numpy.zeros((N,2))
 
@@ -493,25 +493,25 @@ def main():
 
     rate = rospy.Rate(10) # 10hz
 
-    destination1x = [-50. , -71. ,-108. ,-140. , -63. , -82. , -78. ,-116. , -63. , -96., -119. , -71.,  -109. , -62. ,-105. , -91. ,-142. , -68. ,-128. ,-133. ,-136. , -80. ,-128. , -59.,
+    destination1x = [-30. , -71. ,-108. ,-140. , -63. , -82. , -78. ,-116. , -63. , -96., -119. , -71.,  -109. , -62. ,-105. , -91. ,-142. , -68. ,-128. ,-133. ,-136. , -80. ,-128. , -59.,
   -130.]
-    destination1y =  [  -7.,  108. ,-124.,  -24. , 227. ,  53., -185.,   78.,   90.,   55., -192. ,  68.,
+    destination1y =  [  0.,  108. ,-124.,  -24. , 227. ,  53., -185.,   78.,   90.,   55., -192. ,  68.,
   -167., -147. , -91. , 173. ,  34. , 105. , -22., -146. , -95.  , -5. , 225. , 205.,
    -44.]
 
 #('dest2: ',)
-    destination2x = [ 50. , 198. , 169. , 218.,  179. , 171.,  223.,  187.,  240. , 212. , 232. , 239.,
+    destination2x = [ 30. , 198. , 169. , 218.,  179. , 171.,  223.,  187.,  240. , 212. , 232. , 239.,
    196. , 248. , 176.  ,243. , 157. , 220. , 179. , 151. , 197. , 196. , 164. , 240.,
    230.]
-    destination2y = [ -1. ,-107., -228.,  234., -157., -223. ,-209. ,-141. , 145. , 138. ,  37. ,-162.,
+    destination2y = [ 0. ,-107., -228.,  234., -157., -223. ,-209. ,-141. , 145. , 138. ,  37. ,-162.,
     67. ,  80. , 249. ,  48. ,  42. ,  62.,  103. , 125. ,-151.,  186. , 187., -222.,
   -100.]
 
 #('dest: ',)
-    destinationx = [ -63.  , 16. , -57.,   33. , -10. ,  54. ,  11. ,  72.,    7. , -92. ,  47. , -85.,
+    destinationx = [ 0.  , 16. , -57.,   33. , -10. ,  54. ,  11. ,  72.,    7. , -92. ,  47. , -85.,
    -56.  , 40. , -24. , -26. ,  15. ,   7. , -71. ,  -8.,   61. ,  57. ,  21.,  -38.,
     74.]
-    destinationy = [  13. , 238. , 159.,  -76. , -20. ,-209. ,  31. , -59. ,-171.  , -6. ,-180. , -20.,
+    destinationy = [  130. , 238. , 159.,  -76. , -20. ,-209. ,  31. , -59. ,-171.  , -6. ,-180. , -20.,
    144., -230. ,  86. ,  69., -127., -119. , -48., -211. , 120. ,  36. , 231.,  -82.,
    142.]
 
@@ -532,7 +532,7 @@ def main():
 
     for mc1 in range(MC):
         global N, temppos, tempdi
-        N = 4
+        N = 20
         # tempdi = numpy.zeros((N,2))
         # temppos = numpy.zeros((N,2))
 
@@ -601,9 +601,9 @@ def main():
         #unitvec=numpy.zeros((2,N))
         #temppos = numpy.zeros((N,2))
         #tempdi = numpy.zeros((N,2))
-        Rrep = 1
-        Rori = Rrep + 7
-        Ratt = Rori + 3
+        Rrep = 2.5
+        Rori = Rrep + 7.5 #can increase these
+        Ratt = Rori + 2.5
         s = 1
         s1 = 1.0  
         dt = 0.1    
@@ -612,8 +612,8 @@ def main():
 
         S = []
 
-        leaderRrep = 2      
-        leaderRori = 15 + leaderRrep #The agents between the distance of 10(leaderRori) and 20(leaderRatt) get attracted towards them
+        leaderRrep = 2.5      
+        leaderRori = 10 + leaderRrep #The agents between the distance of 10(leaderRori) and 20(leaderRatt) get attracted towards them
         leaderRatt = 0 # We
 
         # destination1 = [-45.0,25.0]
@@ -733,12 +733,13 @@ def main():
         swarm_split = 0;
         leader_idx = [];
         entered_once2 = 0;
-        size_dec = 0.005
+        entered_once4 = 0;
+        size_dec = 0.02
         G1 = [] ; ind_l1 = [] ; ind_l2 = []
         entered_once3 = 0;
         start_time[0][mc1] = rospy.get_rostime().to_sec()
-        while not rospy.is_shutdown():
 
+        while not rospy.is_shutdown():
             pub_marker.publish(M)
             print("yolo")
             #print("initpoints before:")
@@ -766,7 +767,7 @@ def main():
 
 
             if(((near_swarm1 == 1 and near_swarm2 == 1) or swarm_split == 1) and (eaten1 == 0 or eaten2 == 0)):
-                #print("KKKKKKKKKKKK KKKKKKKKKKKKKK")
+                print("22222222222222222222222222222")
                 #print("eaten: " , eaten1 , " " , eaten2)
                 #if(swarm_split == 0):
                     #ORITENT BOTH
@@ -816,9 +817,10 @@ def main():
                     sorted_agents = numpy.argsort(within1)
                     #print("sorted: " , sorted_agents)
                     #print(sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/10:])
-                    ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/10:]
-                    if(numpy.size(ind_gcm1)/10 == 0):
-                        ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-1:]
+                    no_of_agents_per_leader = 4;
+                    ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/(no_of_agents_per_leader+1):]
+                    if(numpy.size(ind_gcm1)/(no_of_agents_per_leader+1) == 0):
+                        ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-2:] #2 , was 1 earlier
 
                     within2 = numpy.zeros((1,numpy.size(ind_gcm2)))
                     for k in range(numpy.size(ind_gcm2)):
@@ -829,9 +831,9 @@ def main():
                         interD = numpy.linalg.norm(initpoints[:,ind_gcm2[0]].T - numpy.asarray(initpoints[:,ind_gcm2[0][k]]).reshape(1,2),axis = 1)
                         within2[0][k] = numpy.size(numpy.where(interD < Rori))
                     sorted_agents = numpy.argsort(within2)
-                    ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-numpy.size(ind_gcm2)/10:]                    
-                    if(numpy.size(ind_gcm2)/10 == 0):
-                        ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-1:]                    
+                    ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-numpy.size(ind_gcm2)/(no_of_agents_per_leader+1):]                    
+                    if(numpy.size(ind_gcm2)/(no_of_agents_per_leader+1) == 0):
+                        ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-2:]                    
 
                     #ind_l1 = numpy.random.choice(numpy.size(ind_gcm1),5)
                     #ind_l2 = numpy.random.choice(numpy.size(ind_gcm2),5)                    
@@ -880,15 +882,19 @@ def main():
                     #print(vels)
             #INITIAL STATE, BEFORE SPLIT
             elif((near_swarm1 == 0 or near_swarm2 == 0 or swarm_split == 0) and (eaten1 == 0 and eaten2 == 0)):#Rori same as Rrep => swarm state
-                print("elif")
+                print("1111111111111111111111111111")
                 initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rrep,Ratt,s1,dt,phi,omega,LeaderPos,rs,[],leaderRrep,leaderRori,leaderRatt,numpy.asarray([0,0]).reshape(1,2),0,nol,[],numpy.asarray([0,0]).reshape(1,2),leader_idx,numpy.size(ind_l1),
                     numpy.size(ind_l2))     
-                print("out of sheep movemeent")       
+                print("out of sheep movemeent") 
 
             
             elif(eaten1 == 1 and eaten2 == 1):
-                #print("LLLLLLLLLLLLLLLLLLLLLLLLLLL")
-                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_idx,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold+5,nol,LeaderVels,destination,leader_idx,
+                print("333333333333333333333333333333")
+                if(entered_once4 == 0):
+                    destination = numpy.asarray([0.0, 10.0]).reshape(1,2)
+                    M.markers[N+nol+nod-1].pose.position.y = destination[0][1];
+                    entered_once4 = 1;                
+                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,LeaderPos,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold+5,nol,LeaderVels,destination,leader_idx,
                     numpy.size(ind_l1),numpy.size(ind_l2))                        
                 #print("HERE")
                 in_g1 = numpy.intersect1d(ind_gcm1,near_dest)
@@ -914,7 +920,7 @@ def main():
             #leader_pos[1] = leader_pos2;
 
             for i in range(N + nol):
-                print(i , "in for")
+                print(i )
                 #if(i in leaderidx):
                 #print("i in main: " , i)
                 if(i < N):
@@ -963,7 +969,7 @@ def main():
                 else:
                     LeaderPos[1],a = moveLeader(LeaderPos[1],GCM,sp2*dt,1)        
 
-            if(abs(LeaderPos[0][1] - LeaderPos[1][1]) <= rs and swarm_split == 0 and entered_once3 == 0):
+            if(abs(LeaderPos[0][1] - LeaderPos[1][1]) <= rs/2 and swarm_split == 0 and entered_once3 == 0):
                 swarm_split = 1; 
                 split_time[0][mc1] = rospy.get_rostime().to_sec() 
                 G1 = numpy.where(initpoints[0] < 0)
@@ -1084,7 +1090,8 @@ def main():
                 #flag = 1;
                 #break      
             #print("COUNT: " , count)    
-            count = count + 1;  
+            count = count + 1;
+            print("COUNT" , count)  
             if(count > 5000):
                 print("mc1 : " , mc1 ,"  not completed " , count)
 

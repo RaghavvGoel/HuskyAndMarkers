@@ -16,7 +16,7 @@ from tf.transformations import euler_from_quaternion
 
 #pi =  22.0/7.0
 
-N = 2
+N = 20
 temppos = numpy.zeros((N,2))
 tempdi = numpy.zeros((N,2))
 
@@ -35,7 +35,7 @@ def ang_wrapPositive(angle):
     if(angle > 2*pi):
         angle = angle - 2*pi
     if(angle < -2*pi):
-        angle = angle + 2*pi;
+        angle = angle + 4*pi #2*pi;
     return angle                
 
 def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold,nol,leader_vels,destination_other,leader_idx,size1,size2):
@@ -57,25 +57,25 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
     dist = numpy.zeros(len(initpoints[0]) + nol)
     for i in range(len(initpoints[0])+nol):
         if(i < N):
-            dist[i] = (numpy.sqrt(pow((pos[i][1] - destination[0][1]),2) + pow((pos[i][0] - destination[0][0]),2)))
+            dist[i] = numpy.sqrt(pow(pos[i][1] - destination[0][1],2) + pow(pos[i][0] - destination[0][0],2))
         else:
             dist[i] = (numpy.sqrt(pow((leader_pos[i-N][1] - destination[0][1]),2) + pow((leader_pos[i-N][0] - destination[0][0]),2)))
     #finding all the agents not within the destination threshold    
     
-    idx1 = numpy.where((dist > destinationthreshold))
-    idx11 = numpy.where(dist > destinationthreshold - 5)
+    idx1 = numpy.where(dist > destinationthreshold - 5) #3
+    idx11 = numpy.where(dist > destinationthreshold - 7) #6
     for i in range(len(initpoints[0])+nol):
         if(i < N):
             dist[i] = (numpy.sqrt(pow((pos[i][1] - destination_other[0][1]),2) + pow((pos[i][0] - destination_other[0][0]),2)))
         else:
             dist[i] = (numpy.sqrt(pow((leader_pos[i-N][1] - destination_other[0][1]),2) + pow((leader_pos[i-N][0] - destination_other[0][0]),2))) 
     
-    idx2 = numpy.where((dist > destinationthreshold))
+    idx2 = numpy.where(dist > destinationthreshold - 5)#reduced the threshold to make agents come closer to the center of the tasks
     #idx2 = numpy.setdiff1d(idx2[0],leader_idx)    
     idx = numpy.intersect1d(idx1[0],idx2[0]);
     idx = numpy.setdiff1d(idx,leader_idx)
     
-    idx21 = numpy.where(dist > destinationthreshold - 5) # -5, so that leaders dont stop at the boundary, making it difficult for the agents to enter
+    idx21 = numpy.where(dist > destinationthreshold - 7) # -5, so that leaders dont stop at the boundary, making it difficult for the agents to enter
     idx_temp = numpy.intersect1d(idx21[0],idx11[0])
     
     leader_ag = numpy.intersect1d(idx_temp,leader_idx)
@@ -305,6 +305,7 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
                     #print("dleader1: " , dleader1)
                     #print("norm1: " , numpy.linalg.norm(dleader1,axis = 0))
                 elif(i in leader_idx[size1:]):
+                    print("leaderidx[size1:]" , leader_idx[size1:])
                     dleader2 = dleader2 + (destination_other[0,:]-pos[i,:])/numpy.linalg.norm((destination_other[0,:]-pos[i,:]),axis = 0)        
                     dleaderFlag2 = 1
                     #print("LLLLLLLLLLLLLLLLLLLLLLLLLLLLLL")
@@ -320,8 +321,11 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
                 # %% decision making
             di = [0, 0]    
             if(dpredFlag == 1):
-                di = -dpred
+                di = di - dpred
+                #di = -dpred                
                 nagentFlag = 1;
+                #print("di: " , di)
+                #print("di - dpred" , di_new)
                 s = s1*2;
             else:
                 s = s1;    
@@ -376,21 +380,28 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
                 #     di = numpy.asarray(di).reshape(1,2)
                 # else:    
                 di = di + numpy.random.rand(1,2)*dt
-                di = di/numpy.linalg.norm(di)
+                if(numpy.linalg.norm(di) != 0):
+                    di = di/numpy.linalg.norm(di)
+                #print("di later" , di)    
                 #print("normDI= " , numpy.linalg.norm(di) , " " , numpy.linalg.norm(di,axis = 0))
                 #print("di: " , di , " " , di[0] , " i= ", i )
                 if(i < N):
                     deno = numpy.sqrt(pow(vels[i][1],2)+pow(vels[i][0],2))*numpy.sqrt(pow(di[0][1],2)+pow(di[0][0],2))
                     #print("numpy.dot : " , (numpy.dot(di,vels[i,:])))
                     #print("without dot : " , ((di[0][1]*vels[i][1]) + (di[0][0]*vels[i][0]))/deno )
-                    deno1 = numpy.linalg.norm(di)
-                    deno2 = numpy.linalg.norm(vels[i],axis = 0)
-                    deno = deno1*deno2                    
+                    #deno1 = numpy.linalg.norm(di)
+                    #deno2 = numpy.linalg.norm(vels[i],axis = 0)
+                    #deno = deno1*deno2                    
+                    #if(deno1 != 0):
+                    #print("deno" , deno)
                     dtheta = numpy.arccos(numpy.dot(di,vels[i,:])/deno)
+                    #print("dtheta" , dtheta)
                     #dtheta = numpy.arccos(((di[0][1]*vels[i][1]) + (di[0][0]*vels[i][0]))/deno)
                     vangle = ang_wrapPositive(numpy.arctan2(vels[i][1],vels[i][0]))
+                    #print("vels: " , vels[i])
+                    #print("vangle" , vangle)    
                 else:
-                    print("ELSE")
+                    #print("ELSE")
                     #deno = numpy.sqrt(pow(leader_vels[1],2)+pow(leader_vels[0],2))*numpy.sqrt(pow(di[0][1],2)+pow(di[0][0],2))
                     deno1 = numpy.linalg.norm(di)
                     deno2 = numpy.linalg.norm(leader_vels[i-N],axis = 0)
@@ -405,7 +416,7 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
                 
                 #vangle = ang_wrapPositive(numpy.arctan2(vels[i][1],vels[i][0]))
                 dangle = ang_wrapPositive(numpy.arctan2(di[0][1],di[0][0]));
-                
+                #print("dangle" , dangle)
                 #print("dangle: " , numpy.arctan2(di[0][1],di[0][0]) , " " , dangle , " " , vangle)
                 R = numpy.zeros((2,2))
                 #R = [numpy.cos(2*pi - vangle) , -numpy.sin(2*pi - vangle); numpy.sin(2*pi - vangle), numpy.cos(2*pi - vangle)]
@@ -429,11 +440,13 @@ def SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos
                     dangle1 = vangle + numpy.sign(dth[1])*dangle*dt
                 #temppos = [0,0]
                 #tempdi  = [0,0]
+                #print("dangle1" , dangle1)
                 if(i < N):
                     tempdi[i][0] = numpy.cos(dangle1)
                     tempdi[i][1] = numpy.sin(dangle1)
                     temppos[i][0] = pos[i,0]+numpy.cos(dangle1)*(s)*dt 
                     temppos[i][1] = pos[i,1]+ numpy.sin(dangle1)*(s)*dt
+                    #print("temppos" , temppos)
                 else:    
                     leader_vels[i-N][0] = numpy.cos(dangle1)
                     leader_vels[i-N][1] = numpy.sin(dangle1)
@@ -720,52 +733,52 @@ def main():
 
     pub_marker = rospy.Publisher('leader2', MarkerArray , queue_size=1)
     
-    # pub_vel_husky2 = rospy.Publisher('/Husky4/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky3 = rospy.Publisher('/Husky5/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky2 = rospy.Publisher('/Husky4/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky3 = rospy.Publisher('/Husky5/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
     pub_vel_husky0 = rospy.Publisher('/Husky2/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
     pub_vel_husky1 = rospy.Publisher('/Husky3/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky4 = rospy.Publisher('/Husky6/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky5 = rospy.Publisher('/Husky7/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky6 = rospy.Publisher('/Husky8/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky7 = rospy.Publisher('/Husky9/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky8 = rospy.Publisher('/Husky10/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky9 = rospy.Publisher('/Husky11/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky10 = rospy.Publisher('/Husky12/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky11 = rospy.Publisher('/Husky13/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky12 = rospy.Publisher('/Husky14/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky13 = rospy.Publisher('/Husky15/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky14 = rospy.Publisher('/Husky16/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky15 = rospy.Publisher('/Husky17/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky16 = rospy.Publisher('/Husky18/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky17 = rospy.Publisher('/Husky19/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky18 = rospy.Publisher('/Husky20/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
-    # pub_vel_husky19 = rospy.Publisher('/Husky21/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky4 = rospy.Publisher('/Husky6/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky5 = rospy.Publisher('/Husky7/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky6 = rospy.Publisher('/Husky8/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky7 = rospy.Publisher('/Husky9/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky8 = rospy.Publisher('/Husky10/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky9 = rospy.Publisher('/Husky11/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky10 = rospy.Publisher('/Husky12/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky11 = rospy.Publisher('/Husky13/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky12 = rospy.Publisher('/Husky14/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky13 = rospy.Publisher('/Husky15/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky14 = rospy.Publisher('/Husky16/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky15 = rospy.Publisher('/Husky17/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky16 = rospy.Publisher('/Husky18/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky17 = rospy.Publisher('/Husky19/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky18 = rospy.Publisher('/Husky20/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
+    pub_vel_husky19 = rospy.Publisher('/Husky21/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
 
     pub_vel_husky_pred0 = rospy.Publisher('/Husky0/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
     pub_vel_husky_pred1 = rospy.Publisher('/Husky1/husky_velocity_controller/cmd_vel',Twist, queue_size=10)
 
-    # rospy.Subscriber('/Husky4/base_pose_ground_truth', Odometry, position_husky4)
-    # rospy.Subscriber('/Husky5/base_pose_ground_truth', Odometry, position_husky5)
+    rospy.Subscriber('/Husky4/base_pose_ground_truth', Odometry, position_husky4)
+    rospy.Subscriber('/Husky5/base_pose_ground_truth', Odometry, position_husky5)
     rospy.Subscriber('/Husky1/base_pose_ground_truth', Odometry, position_husky1)
     rospy.Subscriber('/Husky2/base_pose_ground_truth', Odometry, position_husky2)
     rospy.Subscriber('/Husky3/base_pose_ground_truth', Odometry, position_husky3)
     rospy.Subscriber('/Husky0/base_pose_ground_truth', Odometry, position_husky0)
-    # rospy.Subscriber('/Husky6/base_pose_ground_truth', Odometry, position_husky6)
-    # rospy.Subscriber('/Husky7/base_pose_ground_truth', Odometry, position_husky7)
-    # rospy.Subscriber('/Husky8/base_pose_ground_truth', Odometry, position_husky8)
-    # rospy.Subscriber('/Husky9/base_pose_ground_truth', Odometry, position_husky9)    
-    # rospy.Subscriber('/Husky10/base_pose_ground_truth', Odometry, position_husky10)
-    # rospy.Subscriber('/Husky11/base_pose_ground_truth', Odometry, position_husky11)
-    # rospy.Subscriber('/Husky12/base_pose_ground_truth', Odometry, position_husky12)
-    # rospy.Subscriber('/Husky13/base_pose_ground_truth', Odometry, position_husky13)
-    # rospy.Subscriber('/Husky14/base_pose_ground_truth', Odometry, position_husky14)
-    # rospy.Subscriber('/Husky15/base_pose_ground_truth', Odometry, position_husky15)
-    # rospy.Subscriber('/Husky16/base_pose_ground_truth', Odometry, position_husky16)
-    # rospy.Subscriber('/Husky17/base_pose_ground_truth', Odometry, position_husky17)
-    # rospy.Subscriber('/Husky18/base_pose_ground_truth', Odometry, position_husky18)
-    # rospy.Subscriber('/Husky19/base_pose_ground_truth', Odometry, position_husky19)
-    # rospy.Subscriber('/Husky20/base_pose_ground_truth', Odometry, position_husky20)
-    # rospy.Subscriber('/Husky21/base_pose_ground_truth', Odometry, position_husky21)    
+    rospy.Subscriber('/Husky6/base_pose_ground_truth', Odometry, position_husky6)
+    rospy.Subscriber('/Husky7/base_pose_ground_truth', Odometry, position_husky7)
+    rospy.Subscriber('/Husky8/base_pose_ground_truth', Odometry, position_husky8)
+    rospy.Subscriber('/Husky9/base_pose_ground_truth', Odometry, position_husky9)    
+    rospy.Subscriber('/Husky10/base_pose_ground_truth', Odometry, position_husky10)
+    rospy.Subscriber('/Husky11/base_pose_ground_truth', Odometry, position_husky11)
+    rospy.Subscriber('/Husky12/base_pose_ground_truth', Odometry, position_husky12)
+    rospy.Subscriber('/Husky13/base_pose_ground_truth', Odometry, position_husky13)
+    rospy.Subscriber('/Husky14/base_pose_ground_truth', Odometry, position_husky14)
+    rospy.Subscriber('/Husky15/base_pose_ground_truth', Odometry, position_husky15)
+    rospy.Subscriber('/Husky16/base_pose_ground_truth', Odometry, position_husky16)
+    rospy.Subscriber('/Husky17/base_pose_ground_truth', Odometry, position_husky17)
+    rospy.Subscriber('/Husky18/base_pose_ground_truth', Odometry, position_husky18)
+    rospy.Subscriber('/Husky19/base_pose_ground_truth', Odometry, position_husky19)
+    rospy.Subscriber('/Husky20/base_pose_ground_truth', Odometry, position_husky20)
+    rospy.Subscriber('/Husky21/base_pose_ground_truth', Odometry, position_husky21)    
 
     rate = rospy.Rate(10) # 10hz
 
@@ -808,7 +821,7 @@ def main():
 
     for mc1 in range(MC):
         global N, temppos, tempdi
-        N = 2
+        N = 20
         # tempdi = numpy.zeros((N,2))
         # temppos = numpy.zeros((N,2))
 
@@ -818,8 +831,8 @@ def main():
         threshold = 0
 
         nol = 2
-        leader_pos1 = [0.0,8.0]
-        leader_pos2 = [0.0,-8.0]
+        leader_pos1 = [0.0,9.0]
+        leader_pos2 = [0.0,-9.0]
         #leader_pos = numpy.asarray(leader_pos1).reshape(nol,2)
         LeaderPos = numpy.asarray([leader_pos1,leader_pos2]).reshape(nol,2)
         #leaderidx = numpy.zeros(nol)
@@ -852,6 +865,8 @@ def main():
             vels[i][0] = numpy.random.rand(1,1)
             vels[i][1] = numpy.random.rand(1,1)
 
+        vels[0,0] = 1.0; vels[0,1] = 0.0    
+        vels[1,0] = -1.0; vels[1,1] = 0.0 
         leader_vels1 = numpy.zeros((1,2)); 
         leader_vels2 = numpy.zeros((1,2))
         
@@ -882,8 +897,8 @@ def main():
         #temppos = numpy.zeros((N,2))
         #tempdi = numpy.zeros((N,2))
         Rrep = 2.5
-        Rori = Rrep + 5
-        Ratt = Rori + 3
+        Rori = Rrep + 7.5 #can increase these
+        Ratt = Rori + 2.5
         s = 1
         s1 = 1.0  
         dt = 0.1    
@@ -910,7 +925,7 @@ def main():
         destination2 = numpy.asarray(destination2).reshape(1,2)
 
         destinationthreshold = 10.0
-        rs = 20;
+        rs = 15;
         nod = 3;
         M = MarkerArray()
 
@@ -1020,11 +1035,12 @@ def main():
         swarm_split = 0;
         leader_idx = [];
         entered_once2 = 0;
-        size_dec = 0.005
+        entered_once4 = 0;
+        size_dec = 0.02
         G1 = [] ; ind_l1 = [] ; ind_l2 = []
         entered_once3 = 0;
-        k = 0.3; k_pred = 0.40 #1.5 times sheep
-        angle_bound = pi/2
+        k_pred = 0.40 #1.5 times sheep | k is declared below only as another k is being used in one of the for loops
+        angle_bound = pi
         slow_speed_for_some_dist = False
         check_mode = numpy.zeros(2)
         threshold_for_sub_destination = 5;      
@@ -1037,37 +1053,41 @@ def main():
         sheep_speed = numpy.zeros(N);
         delta_theta = numpy.zeros(N)
         change_in_heading = numpy.zeros(N)
+        new_change_in_heading = numpy.zeros(N)
         dist_left_to_cover = numpy.zeros(N)
         temp_LeaderPos = copy.deepcopy(LeaderPos)
         sp = [0.0, 0.0]
-        
+        rad_to_deg = 180/pi
         start_time[0][mc1] = rospy.get_rostime().to_sec()
 
         while not rospy.is_shutdown():
-            pub_marker.publish(M)
-            pub_vel_husky1.publish(H[1])
-            # pub_vel_husky2.publish(H[2])
-            # pub_vel_husky3.publish(H[3])
-            pub_vel_husky0.publish(H[0])
-            # pub_vel_husky4.publish(H[4])
-            # pub_vel_husky5.publish(H[5])
-            # pub_vel_husky6.publish(H[6])
-            # pub_vel_husky7.publish(H[7]) #put a loop tried will have to google
-            # pub_vel_husky8.publish(H[8])
-            # pub_vel_husky9.publish(H[9])
-            # pub_vel_husky10.publish(H[10])
-            # pub_vel_husky11.publish(H[11])
-            # pub_vel_husky12.publish(H[12])
-            # pub_vel_husky13.publish(H[13])
-            # pub_vel_husky14.publish(H[14])
-            # pub_vel_husky15.publish(H[15])
-            # pub_vel_husky16.publish(H[16])
-            # pub_vel_husky17.publish(H[17])
-            # pub_vel_husky18.publish(H[18])
-            # pub_vel_husky19.publish(H[19])
-            
+            pub_marker.publish(M)        
+            print("pred:", H_pred[0].linear.x , H_pred[1].linear.x)
             pub_vel_husky_pred0.publish(H_pred[0])            
             pub_vel_husky_pred1.publish(H_pred[1])            
+
+            pub_vel_husky0.publish(H[0])
+            pub_vel_husky1.publish(H[1])
+            pub_vel_husky2.publish(H[2])
+            pub_vel_husky3.publish(H[3])            
+            pub_vel_husky4.publish(H[4])
+            pub_vel_husky5.publish(H[5])
+            pub_vel_husky6.publish(H[6])
+            pub_vel_husky7.publish(H[7]) #put a loop tried will have to google
+            pub_vel_husky8.publish(H[8])
+            pub_vel_husky9.publish(H[9])
+            pub_vel_husky10.publish(H[10])
+            pub_vel_husky11.publish(H[11])
+            pub_vel_husky12.publish(H[12])
+            pub_vel_husky13.publish(H[13])
+            pub_vel_husky14.publish(H[14])
+            pub_vel_husky15.publish(H[15])
+            pub_vel_husky16.publish(H[16])
+            pub_vel_husky17.publish(H[17])
+            pub_vel_husky18.publish(H[18])
+            pub_vel_husky19.publish(H[19])
+            
+
             print("yolo")
             #print("initpoints before:")
             #print(initpoints) 
@@ -1077,7 +1097,7 @@ def main():
             #print("before: ",initpoints[:,1] , " lead: " , leader_pos2)
             #temp_ini = initpoints[:,1] # ????
             temp_lead = LeaderPos
-
+            temp_initpoints = copy.deepcopy(initpoints)
             # if(numpy.size(G1) > 0): # groups formed
             #     DD1 = numpy.linalg.norm(initpoints.T - LeaderPos[0].T,axis = 1)
             #     DD2 = numpy.linalg.norm(initpoints.T - LeaderPos[1].T,axis = 1)
@@ -1093,8 +1113,9 @@ def main():
             #     #print("separated_agents: " , separated_agents)                
 
             #AFTER SWARM HAS SPLIT, 2nd STAGE
-            if(((near_swarm1 == 1 and near_swarm2 == 1) or swarm_split == 1) and (eaten1 == 0 or eaten2 == 0)):
-                #print("KKKKKKKKKKKK KKKKKKKKKKKKKK")
+            #if(((near_swarm1 == 1 and near_swarm2 == 1) or swarm_split == 1) and (eaten1 == 0 or eaten2 == 0)):
+            if((swarm_split == 1) and (eaten1 == 0 or eaten2 == 0)):
+                print("2222222222222222222222222222222222222222")
                 #print("eaten: " , eaten1 , " " , eaten2)
                 #if(swarm_split == 0):
                     #ORITENT BOTH
@@ -1114,7 +1135,7 @@ def main():
                     sub_dest2[1] = GCM1[1] + 5.0*numpy.sin(m2)
                     entered_once = 1;
                     #print("HHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHHH")    
-                    initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rrep,Ratt,s1,dt,phi,omega,LeaderPos,rs,[],leaderRrep,leaderRori,leaderRatt,numpy.asarray([0,0]).reshape(1,2),0,0,[],numpy.asarray([0,0]).reshape(1,2),leader_idx,numpy.size(ind_l1),
+                    initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,LeaderPos,rs,[],leaderRrep,leaderRori,leaderRatt,numpy.asarray([100,100]).reshape(1,2),0,0,[],numpy.asarray([0,0]).reshape(1,2),leader_idx,numpy.size(ind_l1),
                         numpy.size(ind_l2))    
 
                 #else:    
@@ -1141,14 +1162,15 @@ def main():
                         #print("k: " , ind_gcm1[0] ,)
                         #print(ind_gcm1[0][k])
                         #print(initpoints[:,ind_gcm1[0][k]])
+                        no_of_agents_per_leader = 4 #earlier 10
                         interD = numpy.linalg.norm(initpoints[:,ind_gcm1[0]].T - numpy.asarray(initpoints[:,ind_gcm1[0][k]]).reshape(1,2),axis = 1)
                         within1[0][k] = numpy.size(numpy.where(interD < Rori))
                     sorted_agents = numpy.argsort(within1)
                     #print("sorted: " , sorted_agents)
                     #print(sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/10:])
-                    ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/10:]
-                    if(numpy.size(ind_gcm1)/10 == 0):
-                        ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-1:]
+                    ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-numpy.size(ind_gcm1)/5:] #5 instead of 10
+                    if(numpy.size(ind_gcm1)/(no_of_agents_per_leader+1) == 0):
+                        ind_l1 = sorted_agents[0][numpy.size(ind_gcm1)-2:]
 
                     within2 = numpy.zeros((1,numpy.size(ind_gcm2)))
                     for k in range(numpy.size(ind_gcm2)):
@@ -1159,9 +1181,9 @@ def main():
                         interD = numpy.linalg.norm(initpoints[:,ind_gcm2[0]].T - numpy.asarray(initpoints[:,ind_gcm2[0][k]]).reshape(1,2),axis = 1)
                         within2[0][k] = numpy.size(numpy.where(interD < Rori))
                     sorted_agents = numpy.argsort(within2)
-                    ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-numpy.size(ind_gcm2)/10:]                    
-                    if(numpy.size(ind_gcm2)/10 == 0):
-                        ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-1:]                    
+                    ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-numpy.size(ind_gcm2)/5:] #5 instead of 10 for 2 leaders-                   
+                    if(numpy.size(ind_gcm2)/(no_of_agents_per_leader+1) == 0):
+                        ind_l2 = sorted_agents[0][numpy.size(ind_gcm2)-2:]                    
 
                     #ind_l1 = numpy.random.choice(numpy.size(ind_gcm1),5)
                     #ind_l2 = numpy.random.choice(numpy.size(ind_gcm2),5)                    
@@ -1183,8 +1205,13 @@ def main():
                     #M.markers[leader_idx[0][1]].color.r = 1.0
                     #M.markers[leader_idx[1]].color.g = 1.0                
                     #entered_once2 = 1;
+                #S is always empty
                 initpoints,vels = SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,LeaderPos,leaderRrep,leaderRori,leaderRatt,destination1,destinationthreshold,nol,LeaderVels,destination2,leader_idx,numpy.size(ind_l1),
                     numpy.size(ind_l2))
+                #Leader_pos is of no use in the above, it is only used when nol is > 0 
+                #in above function call of sheepMovement nol = 0 as S = []
+                #print("LeaderPos: " , LeaderPos)
+
                     # if(numpy.linalg.norm((LeaderPos[0] - destination1[0]),axis = 0) <= destinationthreshold  and in1 == 1 and entered1 == 0):
                     #     entered1 = 1;
                     #     m1 = numpy.arctan2((destination[0][1] - destination1[0][1]),(destination[0][0] - destination1[0][0]))
@@ -1211,15 +1238,26 @@ def main():
 
             #INITIAL STATE, BEFORE SPLIT
             elif((near_swarm1 == 0 or near_swarm2 == 0 or swarm_split == 0) and (eaten1 == 0 and eaten2 == 0)):#Rori same as Rrep => swarm state
-                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rrep,Ratt,s1,dt,phi,omega,LeaderPos,rs,[],leaderRrep,leaderRori,leaderRatt,numpy.asarray([0,0]).reshape(1,2),0,nol,[],numpy.asarray([0,0]).reshape(1,2),leader_idx,numpy.size(ind_l1),
+                #print("111111111111111111111111111111111111111")
+                #print("befire function call")
+                #print(initpoints)
+                #print("vels", vels)
+                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,LeaderPos,rs,[],leaderRrep,leaderRori,leaderRatt,numpy.asarray([10000,0]).reshape(1,2),0,nol,[],numpy.asarray([10000,0]).reshape(1,2),leader_idx,numpy.size(ind_l1),
                     numpy.size(ind_l2))        
+                #initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_pos,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold,nol,leader_vels,destination_other,leader_idx,size1,size2
+                # print("initpoints right after function call")
+                # print(initpoints)
+                # print("vels", vels)
+                # print("")
 
             #JOINING BACK STAGE
             elif(eaten1 == 1 and eaten2 == 1):
-                #print("LLLLLLLLLLLLLLLLLLLLLLLLLLL")
-                destination = [0.0, 10.0]
-                M.markers[N+nol+nod-1].pose.position.y = destination[1];
-                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,leader_idx,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold+5,nol,LeaderVels,destination,leader_idx,
+                print("333333333333333333333333333333333333333")
+                if(entered_once4 == 0):
+                    destination = numpy.asarray([0.0, 10.0]).reshape(1,2)
+                    M.markers[N+nol+nod-1].pose.position.y = destination[0][1];
+                    entered_once4 = 1;
+                initpoints,vels =  SheepMovement(initpoints,vels,Rrep,Rori,Ratt,s1,dt,phi,omega,S,rs,LeaderPos,leaderRrep,leaderRori,leaderRatt,destination,destinationthreshold+5,nol,LeaderVels,destination,leader_idx,
                     numpy.size(ind_l1),numpy.size(ind_l2))                        
                 #print("HERE")
                 in_g1 = numpy.intersect1d(ind_gcm1,near_dest)
@@ -1243,7 +1281,9 @@ def main():
             #print(vels_temp)
             #leader_pos[0] = leader_pos1;
             #leader_pos[1] = leader_pos2;
-            print("")
+            #print("initpoints before for: ")
+            #print(initpoints)
+            #print("")
             for i in range(N):
                 print(i)
                 #if(i in leaderidx):
@@ -1251,48 +1291,84 @@ def main():
                 #if(i < N):
                 #print(i," vel ",vels[i])
                 change_in_heading[i] = numpy.arctan2(vels[i][1] , vels[i][0])    
+                #vels will be updated after every iteration
+                vels[i][1] = numpy.sin(Yaw[i])
+                vels[i][0] = numpy.cos(Yaw[i])
+                #new_change_in_heading[i] = numpy.arctan2(initpoints[1,i] - temp_initpoints[1,i] , initpoints[0,i] - temp_initpoints[0,i])
                 delta_theta[i] = change_in_heading[i] - Yaw[i]; #we can scale this                    
+                #print("new and old") #coming SAME
+                #print(new_change_in_heading[i] , change_in_heading[i])
+                #print("change_in_heading" , change_in_heading[i]*rad_to_deg)
+                #print("delta_theta" , delta_theta[i]*rad_to_deg)
+                #print("Yaw" , Yaw[i]*rad_to_deg)
                 #To prevent very fast rotation which can lead to toppling
                 #Below not running good
-                #if(huskyX[i] < 0): 
+                if(huskyX[i] < 0 and abs(delta_theta[i]) > angle_bound): # and eaten1 != 1 
                 #if((Yaw[i] < -pi/2 and change_in_heading[i] > pi/2) or (Yaw[i] > pi/2  and change_in_heading[i] < -pi/2)):
                 #or should the condition be fpr those who ae facing the 3rd and 4th quad 
                     #delta_theta[i] = numpy.sign(delta_theta[i])*angle_bound
-                    # delta_theta[i] = -numpy.sign(delta_theta[i])*(2*pi - abs(delta_theta[i]))
-                    # if(abs(delta_theta[i]) > angle_bound):
-                    #     delta_theta[i] = numpy.sign(delta_theta[i])*angle_bound
+                    delta_theta[i] = -numpy.sign(delta_theta[i])*(2*pi - abs(delta_theta[i]))
+                    if(abs(delta_theta[i]) > angle_bound):
+                        delta_theta[i] = numpy.sign(delta_theta[i])*angle_bound
                     # if(huskyX[i] < 0):
                     #     delta_theta[i] = -1*delta_theta[i]  #(numpy.sign(delta_theta[i]))*((2*pi)%delta_theta[i])        
+                #print("changed delta_theta" , delta_theta[i]*rad_to_deg)
+                if(eaten2 == 1 and huskyX[i] > 0 and abs(delta_theta[i]) > angle_bound):
+                    delta_theta[i] = -numpy.sign(delta_theta[i])*(2*pi - abs(delta_theta[i]))
+                    if(abs(delta_theta[i]) > angle_bound):
+                        delta_theta[i] = numpy.sign(delta_theta[i])*angle_bound                    
+
+                if(swarm_split == 1 and entered_once4 == 0):        
+                    if(leader_idx[0] in near_dest1[0]):
+                        #turn the leader towards the new destination
+                        new_angle = numpy.arctan2(destination[0][1]-huskyY[leader_idx[0]],destination[0][0]-huskyX[leader_idx[0]])
+                        delta_theta[leader_idx[0]] = new_angle - Yaw[leader_idx[0]];
+
+                    if(leader_idx[1] in near_dest1[0]):
+                        #turn the leader towards the new destination
+                        new_angle = numpy.arctan2(destination[0][1]-huskyY[leader_idx[1]],destination[0][0]-huskyX[leader_idx[1]])
+                        delta_theta[leader_idx[1]] = new_angle - Yaw[leader_idx[1]];                    
+
+                    if(leader_idx[2] in near_dest2[0]):
+                        #turn the leader towards the new destination
+                        new_angle = numpy.arctan2(destination[0][1]-huskyY[leader_idx[2]],destination[0][0]-huskyX[leader_idx[2]])
+                        delta_theta[leader_idx[2]] = new_angle - Yaw[leader_idx[2]];
+
+                    if(leader_idx[3] in near_dest2[0]):
+                        #turn the leader towards the new destination
+                        new_angle = numpy.arctan2(destination[0][1]-huskyY[leader_idx[3]],destination[0][0]-huskyX[leader_idx[3]])
+                        delta_theta[leader_idx[3]] = new_angle - Yaw[leader_idx[3]];                                            
 
                 temp_initpoints2 = copy.deepcopy(initpoints)
-                print("init: " , initpoints[:,i])
+                #print("init: " , initpoints[:,i])
                 M.markers[i].pose.position.x = huskyX[i] #initpoints[0][i] 
                 M.markers[i].pose.position.y = huskyY[i] #initpoints[1][i]
                 initpoints[0][i] = M.markers[i].pose.position.x
                 initpoints[1][i] = M.markers[i].pose.position.y
                 
                 dist_left_to_cover[i] = numpy.sqrt(pow(temp_initpoints2[1][i]-huskyY[i],2) + pow(temp_initpoints2[0][i]-huskyX[i],2))
-                
-                print("pos:" , huskyX[i] , huskyY[i])
-                print("angle : ", Yaw[i])
-                print("speed: " , dist_left_to_cover[i])
-                print("angular sp:", delta_theta[i])
-                sheep_speed[i] = dist_left_to_cover[i];
+                print("speed:" , dist_left_to_cover[i])
+                #print("pos:" , huskyX[i] , huskyY[i])
+                #print("angle : ", Yaw[i])
+                #print("speed: " , dist_left_to_cover[i])
+                #print("angular sp:", delta_theta[i])
+                sheep_speed[i] = dist_left_to_cover[i]; #can remove the dt if leaders taking more time
                 
                 # if(dist_left_to_cover[i] < 0.01):
                 #     sheep_speed[i] = 0.1
-                
+                k = 1;
                 H[i].linear.x = sheep_speed[i]
-                H[i].angular.z = k*(delta_theta[i]) #removed k*                   
-            
-            print("")    
+                H[i].angular.z = k*(delta_theta[i]) #removed k*                
+                #print("angular" , H[i].angular.z)
+            #print("")    
             for i in range(nol):
+                print(N + nol)
                 #print("LLLLLLLLLLLLLLLLLLLLLLLLL")
                 #print(leader_pos1)
                 # print("swarm_split: " , swarm_split)
                 # print("pred pos: " , LeaderPos[i])
                 # print("sheph speed: " , sheperd_speed[i])
-                change_in_heading_sheperd[i] = numpy.arctan2(LeaderPos[i,1]-temp_LeaderPos[i,1],LeaderPos[i-N,0]-temp_LeaderPos[i-N,0])
+                change_in_heading_sheperd[i] = numpy.arctan2(LeaderPos[i,1]-temp_LeaderPos[i,1],LeaderPos[i,0]-temp_LeaderPos[i,0])
                 delta_theta_sheperd[i] = change_in_heading_sheperd[i] - Yaw_pred[i];
                 #To prevent very fast rotation which can lead to toppling
                 if(abs(delta_theta_sheperd[i]) > angle_bound and husky_predX[i] < 0):
@@ -1304,8 +1380,8 @@ def main():
                     sheperd_speed[i] = 0.0
                     #nol = 0;
                 else:
-                    sheperd_speed[i] = 1.0 #1.25*sp[i-N]
-
+                    sheperd_speed[i] = 0.35 #1.25*sp[i-N]
+                #print("sheperd_speed:",sheperd_speed[i])
                 M.markers[i+N].pose.position.x = husky_predX[i] #LeaderPos[0][0]
                 M.markers[i+N].pose.position.y = husky_predY[i] #LeaderPos[0][1]
                 LeaderPos[i][0] = husky_predX[i]
@@ -1332,36 +1408,42 @@ def main():
             
             temp_LeaderPos = copy.deepcopy(LeaderPos)
             limit = 1;
-            if(near_swarm1 == 0 and swarm_split == 0):
-                #D1 = numpy.linalg.norm(initpoints.T - LeaderPos[0],axis=1)
-                #instead of sheep, lets compare how far from origin
-                D1 = numpy.linalg.norm(LeaderPos[0],axis=0)
-                sp[0] = numpy.linalg.norm(LeaderPos[0] - GCM)*(0.1)                                                           
-                #print("sp1= " , sp1)         
-                idxD1 = numpy.where(D1 < rs/3.0)            
-                #if(numpy.size(idxD1) > 0):
-                if(D1 < limit):
-                    near_swarm1 = 1;
+            # if(near_swarm1 == 0 and swarm_split == 0):
+            #     #D1 = numpy.linalg.norm(initpoints.T - LeaderPos[0],axis=1)
+            #     #instead of sheep, lets compare how far from origin
+            #     D1 = numpy.linalg.norm(LeaderPos[0],axis=0)
+            #     sp[0] = numpy.linalg.norm(LeaderPos[0] - GCM)*(0.1)                                                           
+            #     #print("sp1= " , sp1)         
+            #     idxD1 = numpy.where(D1 < rs/3.0)            
+            #     #if(numpy.size(idxD1) > 0):
+            #     if(D1 < limit):
+            #         near_swarm1 = 1;
                 # else:
                 #     LeaderPos[0],a = moveLeader(LeaderPos[0],GCM,sp[0]*dt,1)
 
-            if(near_swarm2 == 0 and swarm_split == 0):
-                #D2 = numpy.linalg.norm(initpoints.T - LeaderPos[1],axis=1)
-                D2 = numpy.linalg.norm(LeaderPos[1],axis=0)
-                sp[1] = numpy.linalg.norm(LeaderPos[1] - GCM)*(0.1)
-                #print(" sp2= " , sp2)
-                idxD2 = numpy.where(D2 < rs/3.0)            
-                if(D2 < limit):
-                    near_swarm2 = 1
+            # if(near_swarm2 == 0 and swarm_split == 0):
+            #     #D2 = numpy.linalg.norm(initpoints.T - LeaderPos[1],axis=1)
+            #     D2 = numpy.linalg.norm(LeaderPos[1],axis=0)
+            #     sp[1] = numpy.linalg.norm(LeaderPos[1] - GCM)*(0.1)
+            #     #print(" sp2= " , sp2)
+            #     idxD2 = numpy.where(D2 < rs/3.0)            
+            #     if(D2 < limit):
+            #         near_swarm2 = 1
                 # else:
                 #     LeaderPos[1],a = moveLeader(LeaderPos[1],GCM,sp[1]*dt,1)        
             print("dist betwen sheps ", abs(LeaderPos[0][1] - LeaderPos[1][1]))    
-            if(abs(LeaderPos[0][1] - LeaderPos[1][1]) <= 2 and swarm_split == 0 and entered_once3 == 0 and husky_predY[0] != 0 and husky_predY[1] != 0):
-                swarm_split = 1; 
-                split_time[0][mc1] = rospy.get_rostime().to_sec() 
-                G1 = numpy.where(initpoints[0] < 0)
-                G2 = numpy.where(initpoints[0] > 0)
-                entered_once3 = 1;
+            time_split = rospy.get_rostime().to_sec()
+            print("time:",time_split - start_time[0][mc1])
+            print("swarm_split",swarm_split)
+            if(time_split - start_time[0][mc1] > 1.5):
+                if(abs(LeaderPos[0][1] - LeaderPos[1][1]) <= 1.0 and swarm_split == 0):
+                    #print("swarm_split",swarm_split)
+                    swarm_split = 1; 
+                    split_time[0][mc1] = rospy.get_rostime().to_sec() 
+                    G1 = numpy.where(initpoints[0] < 0)
+                    G2 = numpy.where(initpoints[0] > 0)
+
+                #entered_once3 = 0;
 
 
 
@@ -1392,16 +1474,16 @@ def main():
 
 
             D = numpy.linalg.norm(initpoints.T - destination,axis=1)
-            near_dest = numpy.where(D < destinationthreshold+5)
+            near_dest = numpy.where(D < destinationthreshold) # + 5 removed #will reduce this too
             #print("near_dest: " , numpy.size(near_dest))
 
             D1 = numpy.linalg.norm(initpoints.T - destination1,axis=1)
             away_dest1 = numpy.where(D1 > destinationthreshold)
-            near_dest1 = numpy.where(D1 <= destinationthreshold)
+            near_dest1 = numpy.where(D1 <= destinationthreshold-5)
 
             D2 = numpy.linalg.norm(initpoints.T - destination2,axis=1)
             away_dest2 = numpy.where(D2 > destinationthreshold)
-            near_dest2 = numpy.where(D2 <= destinationthreshold)
+            near_dest2 = numpy.where(D2 <= destinationthreshold-5)
 
             #g1 = numpy.intersect1d(away_dest1[0],grp1)
             #g2 = numpy.intersect1d(away_dest2[0],grp2)
@@ -1478,7 +1560,7 @@ def main():
                 #break      
             print("COUNT: " , count)    
             count = count + 1;  
-            if(count > 2500):
+            if(count > 6000):
                 print("mc1 : " , mc1 ,"  not completed " , count)
 
                 not_completed[0][mc1] = 1;

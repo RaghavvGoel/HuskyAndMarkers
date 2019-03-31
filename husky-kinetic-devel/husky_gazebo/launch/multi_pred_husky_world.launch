@@ -50,7 +50,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="0.0"/>
-    <arg name="y" value="8.0"/>
+    <arg name="y" value="9.0"/>
     <arg name="yaw" value="-1.57079"/>
     <arg name="robot_namespace" value="Husky0"/>
     <arg name="tf_prefix" value="H0_tf"/>
@@ -60,7 +60,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="0.0"/>
-    <arg name="y" value="-8.0"/>
+    <arg name="y" value="-9.0"/>
     <arg name="yaw" value="1.57079"/>
     <arg name="robot_namespace" value="Husky1"/>
     <arg name="tf_prefix" value="H1_tf"/>
@@ -72,7 +72,7 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="-1.5"/>
     <arg name="y" value="0.0"/>  
-    <arg name="yaw" value="-$(arg pi)"/>   
+    <arg name="yaw" value="-$(arg pi_2)"/>   
     <arg name="robot_namespace" value="Husky2"/>
     <arg name="tf_prefix" value="H2_tf"/>
   </include>  
@@ -82,12 +82,12 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="1.5"/>
     <arg name="y" value="0.0"/>   
-    <arg name="yaw" value="0.0"/> 
+    <arg name="yaw" value="$(arg pi_2)"/> 
     <arg name="robot_namespace" value="Husky3"/>
     <arg name="tf_prefix" value="H3"/>
   </include>  
 
-<!--   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+  <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="-1.5"/>
@@ -106,8 +106,8 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="robot_namespace" value="Husky5"/>
     <arg name="tf_prefix" value="H5"/>
   </include>   
- -->
-<!--   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
+
+   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
     <arg name="x" value="-1.5"/>
@@ -254,7 +254,6 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="tf_prefix" value="H19"/>
   </include>            
 
-
   <include file="$(find husky_gazebo)/launch/spawn_husky.launch">
     <arg name="laser_enabled" value="$(arg laser_enabled)"/>
     <arg name="kinect_enabled" value="$(arg kinect_enabled)"/>
@@ -275,5 +274,5 @@ ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSI
     <arg name="robot_namespace" value="Husky21"/>
     <arg name="tf_prefix" value="H21"/>
   </include>            
- -->
+ 
 </launch>
