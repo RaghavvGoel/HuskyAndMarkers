@@ -6,3 +6,15 @@ Consists of all the files for opening multi agent simulation in Gazebo.
 2. UsingPython2
 
 Consists all the codes written in python. 
+
+You need to have ROS-KINETIC installed. ROS comes pre installed with RVIZ and Gazebo. 
+
+For seeing a visual of how it works, 
+1. you'll need to start the RVIZ : command on terminal : rosrun rviz rviz 
+2. then change the Fixed frame tag on the left side top of RVIZ to whatever is mentioned inside the main() function 
+   where the markers are  implemented. 
+3. Then you'll need to add MarkerArray from the add button left side down. 
+4. Then put the Marker Topic as mentioned in the code. Marker Topic is the same as the Publisher name of the marker, 
+   just below the main().
+
+
