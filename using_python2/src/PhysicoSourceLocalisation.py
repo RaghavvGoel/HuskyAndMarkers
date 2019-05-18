@@ -40,7 +40,7 @@ def move( point1,point2,intensity,direction ):
             point2[1]=point2[1]+direction*(intensity)*unitvec[1]
     return point1,point2
 
-def moveSheperd( point1,point2,intensity,direction): 
+def moveSheperd( point1,point2,intensity,direction):  #can we treat this similar to leader ??
     #print("point1 : " , point1, "  point2 " , point2, " PPPPPPPPPPPPPPPP")
     point1 = numpy.asarray(point1).reshape(1,2)
     point2 = numpy.asarray(point2).reshape(1,2)   
@@ -136,30 +136,39 @@ def sheperdingEffect(initpoints,Shepherd,rs,rhos): #the fear of the predator
     #return shepherdingpoints[0],shepherdingpoints[1]
     return shepherdingpoints
 
-def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,destinationthreshold,destination1,destination2,swarm_split,eaten1,eaten2):
+
+def check_conc(initpoints):
+    conc = numpy.sqrt(numpy.power(initpoints[0],2) + numpy.power(initpoints[1],2))
+    conc1 = numpy.sqrt(numpy.power(initpoints[0],2) + numpy.power(initpoints[1]-30,2)) + 5;
+    #conc = ((x**2) + (y**2))**(0.5);
+    conc = conc*conc1
+    return conc;
+
+def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,destinationthreshold,destination1,destination2,swarm_split,eaten1,eaten2,nol,count,conc_t,conc_t_1):
     #D=numpy.linalg.norm(initpoints.T-agent1,axis=1)
     #temp = numpy.zeros(1,numpy.size(X))
     #pos = numpy.concatenate((X,Y),axis=0)
     #pos = initpoints.T
-    #S = []
-
+    S = []
+    N = numpy.shape(initpoints)[1]
     #leaderidx = len(initpoints[0])
-    if(swarm_split == 1):
-        DIST1 = numpy.linalg.norm(initpoints.T - (destination1),axis=1)    
-        idx1 = numpy.where(DIST1 > destinationthreshold)
+    # if(swarm_split == 1):
+    #     DIST1 = numpy.linalg.norm(initpoints.T - (destination1),axis=1)    
+    #     idx1 = numpy.where(DIST1 > destinationthreshold)
 
-        DIST2 = numpy.linalg.norm(initpoints.T - (destination2),axis=1)    
-        idx2 = numpy.where(DIST2 > destinationthreshold)      
+    #     DIST2 = numpy.linalg.norm(initpoints.T - (destination2),axis=1)    
+    #     idx2 = numpy.where(DIST2 > destinationthreshold)      
 
-        IDX = numpy.intersect1d(idx1[0],idx2[0])      
+    #     IDX = numpy.intersect1d(idx1[0],idx2[0])      
     #else:
     IDX = []    
         #idx = numpy.intersect1d(idx1[0],idx2[0])
 
     #else:
     #if(eaten1 == 1 and eaten2 == 1):
+    destination = [10000,0]
     DIST = numpy.linalg.norm(initpoints.T - numpy.asarray(destination).reshape(1,2),axis=1)    
-    idx = numpy.where(DIST > 1.0)
+    idx = numpy.where(DIST > 0.0)
     
 
     temp_initpoints = copy.deepcopy(initpoints)
@@ -195,8 +204,9 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
         idxgravity = numpy.intersect1d(numpy.setdiff1d(temp_ind,idxshepherd),idx)
         # else:
         #     idxgravity = numpy.intersect1d(numpy.setdiff1d(temp_ind,idxshepherd),IDX)    
-    else:
+    else: #WE come here! EEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEE 
         idxshepherd = []
+        #print("leaderidx:" , leaderidx)
         idxgravity = numpy.intersect1d(numpy.setdiff1d(temp_ind,leaderidx),idx)
     #idxgravity = numpy.intersect1d(temp_ind,idx)
         #idxshepherd = []        
@@ -222,22 +232,48 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
             D[k][0] = Xgravity[k]
             D[k][1] = Ygravity[k]
 
-    scale = 5.0        
+    scale = 1.0        
     m = 1.0; # mass of agent
     p = 2.0; # degree to the distance between the two agents
-    R = 10.0/scale;  #Range of repulsive forces (in metres)
-    C = 50.0/scale; # range of forces applicable (in metres)
+    R = 40.0/scale;  #Range of repulsive forces (in metres)
+    C = 70.0/scale; # range of forces applicable (in metres)
     cf = 0.2; # coefficient of friction for self-stabilisation, restricting the maximum velocity
     Fmax = 1; # Maximum force that can be experienced by each agent
     #Gravitational constant specific to the hexagonal formation  
     #G = Fmax * R^p * (2.0 - 1.5^(1-p))^(p/(1-p));
     G = Fmax*(pow(R,p))*pow(2.0 - pow(1.5,1-p),p/(1-p))
 
+    thresh = 450
+
+    if(count > thresh):
+        R = 5; #R/5;
+
+    #NEED TO CHANGE THIS CODEE, agents not working as they should i feel...............
 # %% Inter-Agent
     F = []
     Fx = []
     Fy = []
     if(numpy.size(idxgravity) != 0):
+        
+        if(count == thresh-1):
+            print("here0")
+            print(count)
+            conc_t_1 = check_conc(initpoints)
+        elif(count == thresh):
+            print("here1")
+            print(count)
+            conc_t = check_conc(initpoints)
+            min_conc_ind = numpy.argsort(conc_t)
+        elif(count > thresh):
+            conc_t_1 = conc_t
+            conc_t = check_conc(initpoints)
+            min_conc_ind = numpy.argsort(conc_t)
+            print("here2")
+            print(min_conc_ind[0])
+            print(initpoints[:,min_conc_ind[0]])
+            if(nol > 0):
+                print(initpoints[:,N-nol])
+
         #print("D: " , D , " " , D[0])
         for i in range(numpy.shape(D)[0]):
             #print("D_shape: " , numpy.shape(D))
@@ -268,6 +304,63 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
             dist = dist*scalar #getting projections of scalar along points                    
             Fx.append(numpy.sum(dist[:,0]))
             Fy.append(numpy.sum(dist[:,1]))
+
+            conc_thresh = 0.5 
+            const2 = 1.25 
+            if(count >= thresh and i != N-nol):
+                if(conc_t[i] < conc_t_1[i]):
+                    #same direction, increase the Fx,Fy
+                    Fx[i] = Fx[i]*const2
+                    Fy[i] = Fy[i]*const2
+                    if(conc_t[i] < conc_thresh):
+                        #agfent can stop
+                        Fx[i] = 0;
+                        Fy[i] = 0;
+                else:
+                    z = numpy.random.rand(1) 
+                    if(z < 0.5): #move left
+                        Fx[i] += -Fy[i]/const2
+                        Fy[i] += Fx[i]/const2 
+                    else:
+                        Fx[i] += Fy[i]/const2
+                        Fy[i] += -Fx[i]/const2  
+
+
+            if(count >= thresh and conc_t[i] < conc_thresh):
+                    #agfent can stop
+                    print("here333")
+                    print(conc_t[i])
+                    Fx[i] = 0;
+                    Fy[i] = 0;        
+
+            const = 2;
+            leader_rep = 3.0
+            leader_att = 40.0
+            if(count >= thresh and i != min_conc_ind[0] and i!= N-nol and nol > 0):
+                #bias towards leader but not for the agent having min conc
+                dist = D[N-nol] - D[i]
+                d = numpy.linalg.norm(D[N-nol] - D[i])
+                rows1 = numpy.where(d <= leader_att)
+                rows3 = numpy.where(d > leader_rep)
+                rows = numpy.intersect1d(rows1[0],rows3[0])
+                if(numpy.size(rows) > 0): #move towards leader
+                    sc = pow(d,-3) #was -3 made -2
+                    dist = dist*sc*const;
+                    Fx[i] += dist[0];
+                    Fy[i] += dist[1];    
+
+            if(i == N-nol and count >= thresh):
+                #leader moving towards min conc
+                dist = D[min_conc_ind[0]] - D[i]
+                d = numpy.linalg.norm(D[min_conc_ind[0]] - D[i])
+                rows = numpy.where(d >= 3.0) #3.0 is the R #we can make this smaller
+                if(numpy.size(rows) > 0):
+                    sc = pow(d,-3)
+                    dist = dist*sc*const*2;
+                    Fx[i] += dist[0];
+                    Fy[i] += dist[1];    
+
+
         deltaV = numpy.zeros((numpy.size(Fx),2))
         # print("Fx: " , Fx , " " , numpy.size(Fx))
         # print("Fx: " , Fy , " " , numpy.size(Fy))
@@ -286,17 +379,59 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
                 V[i,0] = V[i,0]/numpy.linalg.norm(V[i,:])
                 V[i,1] = V[i,1]/numpy.linalg.norm(V[i,:])       
 
-        deltaD = V*deltaT
+        deltaD = V*deltaT*10
         # print("delta D: " , deltaD)
         D = D + deltaD
         initpoints[0][idxgravity] = D[:,0]
         initpoints[1][idxgravity] = D[:,1]
         V1[idxgravity,:] = V    
 
-# %% With Leader (LEADER SEPARATE)
+    # %% With Leader (LEADER SEPARATE)
     #leader_pos = []
     #if(numpy.size(leaderidx) != 0):
     leaderidx = []
+    #we have a leader, with Rr and Ra |
+    conc_for_period = [] 
+
+
+
+    # if(count > 400):
+    #     #conc = check_conc(initpoints)
+    #     #conc_for_period.append(conc)
+    #     net_conc = sum(conc_for_period[count-50:count])
+    #     max_conc_ind = numpy.argsort(net_conc)
+    #     agent_pos = initpoints[:,max_conc_ind[0]] #we want the smallest one
+    #     print("agent_max_conc: " , agent_pos)
+    #     #leader move towards agent detecting most, tells others to move towards the most
+    #     leader = initpoints[:,N - nol]
+    #     leader , a = moveSheperd(leader,agent_pos,0.2,1)
+    #     LRa = 40; LRr = 5;
+    #     dist_from_leader = numpy.linalg.norm(initpoints.T - leader, axis=1)
+    #     agents_within_LRa = numpy.where(dist_from_leader <= LRa)
+    #     agents_outside_LRr = numpy.where(dist_from_leader > LRr)
+
+    #     agents_attracted = numpy.intersect1d(agents_within_LRa, agents_outside_LRr)
+        
+    #     initpoints[0,N-nol] = leader[0][0]
+    #     initpoints[1,N-nol] = leader[0][1]
+    #     #agetns within LRa to move towards the leader
+    #     new_init = []
+    #     for i in range(numpy.size(agents_attracted)):
+    #         temp,a = moveSheperd(initpoints[:,agents_attracted[i]], leader,0.2,1)
+    #         new_init.append(temp)
+
+    #     for i in range(numpy.size(agents_attracted)):
+    #         initpoints[:,i] = new_init[i];
+
+    # else:
+    #     conc = check_conc(initpoints[:,N-nol])
+    #     conc_for_period.append(conc)
+
+    #now we want this leader thing to happen after a certain time t
+    #we can also take average of the sensor readings of the agents and then decide how to proceed
+
+
+
     # if(numpy.size(leaderidx) != 0):
     #     #print("LLLLLLLLLLLLLLLLLLLLLLLLL")        
     #     Xgravity = initpoints[0,idxgravity]
@@ -381,18 +516,18 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
         # initpoints[1,idxgravity] = D[:,1]
         # V1[idxgravity,:] = V
 
-    if(numpy.shape(S)[0] != 0):
-        #Xshepherd , Yshepherd = sheperdingEffect(pos,S,rs,rhos)
-        #print("Shepherd")
-        shepherdingpoints = sheperdingEffect(initpoints[:,idxshepherd],S,rs,rhos)
-        initpoints[0,idxshepherd] = shepherdingpoints[0]
-        initpoints[1,idxshepherd] = shepherdingpoints[1]
-        initpoints,V = stepspertimestep(initpoints,temp_initpoints,dps*deltaT)
-        V = V.T
-        # print("V1 shape: " , numpy.shape(V1) , " " , numpy.shape(V))
-        # print(" idxshepherd ",idxshepherd)
-        V1[idxshepherd,0] = V[idxshepherd,0]
-        V1[idxshepherd,1] = V[idxshepherd,1]        
+    # if(numpy.shape(S)[0] != 0):
+    #     #Xshepherd , Yshepherd = sheperdingEffect(pos,S,rs,rhos)
+    #     #print("Shepherd")
+    #     shepherdingpoints = sheperdingEffect(initpoints[:,idxshepherd],S,rs,rhos)
+    #     initpoints[0,idxshepherd] = shepherdingpoints[0]
+    #     initpoints[1,idxshepherd] = shepherdingpoints[1]
+    #     initpoints,V = stepspertimestep(initpoints,temp_initpoints,1.0) #dps*deltaT  #1.0 and 0.1
+    #     V = V.T
+    #     # print("V1 shape: " , numpy.shape(V1) , " " , numpy.shape(V))
+    #     # print(" idxshepherd ",idxshepherd)
+    #     V1[idxshepherd,0] = V[idxshepherd,0]
+    #     V1[idxshepherd,1] = V[idxshepherd,1]        
     
     # print("Xshepherd: " , Xshepherd)
     # if(numpy.shape(S)[0] != 0 and numpy.size(Xshepherd) != 0):
@@ -408,7 +543,7 @@ def initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,des
     #     V1[idxshepherd,0] = V[idxshepherd,0]
     #     V1[idxshepherd,1] = V[idxshepherd,1]
 
-    return initpoints,V1    
+    return initpoints,V1,count,conc_t,conc_t_1
 
 
 
@@ -449,14 +584,14 @@ def main():
     for mc1 in range(MC):
     
         nos = 2;
-        Xstartpos = 0
+        Xstartpos = -50
         Ystartpos = 0
         threshold = 0
-        N = 10 # 1 is nos 
+        N = 10+1 # 1 is nos 
         #function [ X,Y,vels] = puneetsCouzins(X,Y,vels,Rrep,Rori,Ratt,s,dt,phi,omega)
         k = 15
         # x=Xstartpos+numpy.random.rand(1,N)*k - (k/2) #swarm initialization
-        # y=Ystartpos+numpy.random.rand(1,N)*k - (k/2)  #gives random values from [0,1)
+        # y=Ystartpos+numpy.rando m.rand(1,N)*k - (k/2)  #gives random values from [0,1)
         mu = 0;
         sigma = 2
         x = Xstartpos + numpy.random.normal(mu,sigma,(1,N))
@@ -489,7 +624,7 @@ def main():
         #Sh = numpy.asarray(S1).reshape(1,2)
         Sh = numpy.asarray([S1,S2]).reshape(nos,2)
 
-        dps = 1.0
+        dps = 2.0
         ra = 10.0
         rhos = 1.0 #strength of repulsion
         deltaT = 0.1
@@ -503,52 +638,52 @@ def main():
         leader_vels[0][1] = numpy.random.rand(1,1)
 
         #leader_pos = 
-        leaderidx = numpy.random.randint(N,size=1)
+        leaderidx = [] #numpy.random.randint(N,size=1)
 
         #destination = [0,50]
 
         A = 50
-        dx1 = numpy.random.randint(A,size = 1)
-        dy1 = numpy.random.randint(A,size = 1)
-        dx2 = numpy.random.randint(A,size = 1)
-        dy2 = numpy.random.randint(A,size = 1)
-        dx2 = dx2*(-1)
-        dy2 = dy2*(-1)
+        # dx1 = numpy.random.randint(A,size = 1)
+        # dy1 = numpy.random.randint(A,size = 1)
+        # dx2 = numpy.random.randint(A,size = 1)
+        # dy2 = numpy.random.randint(A,size = 1)
+        # dx2 = dx2*(-1)
+        # dy2 = dy2*(-1)
         # dx1 = numpy.asarray([-67]).reshape(1,1)
         # dy1 = numpy.asarray([-32]).reshape(1,1)
         # dx2 = numpy.asarray([5]).reshape(1,1)
         # dy2 = numpy.asarray([48]).reshape(1,1)
         # dx3 = numpy.asarray([37]).reshape(1,1)
         # dy3 = numpy.asarray([18]).reshape(1,1)
-        while(abs(dx2 - dx1) < 20):
-            print("x2 in while: " , dx2)
-            dx2 = numpy.random.randint(A,size = 1)
-        while(abs(dy2 - dy1) < 20):
-            print("dy2 in while: " , dy2)
-            dy2 = numpy.random.randint(A,size = 1)            
-        dx3 = numpy.random.randint(2*A,size = 1)
-        dy3 = numpy.random.randint(2*A,size = 1)
-        dx3 = dx3 - A; dy3 = dy3 - A;
-        while(abs(dx3 - dx1) < 25 or abs(dx3 - dx2) < 25):
-            print("x3 in while: " , dx3)
-            dx3 = numpy.random.randint(A,size = 1)
-        while(abs(dy3 - dy1) < 25 or abs(dy3 - dy2) < 25):
-            print("dy3 in while: " , dy3)
-            dy3 = numpy.random.randint(A,size = 1)            
+        # while(abs(dx2 - dx1) < 20):
+        #     print("x2 in while: " , dx2)
+        #     dx2 = numpy.random.randint(A,size = 1)
+        # while(abs(dy2 - dy1) < 20):
+        #     print("dy2 in while: " , dy2)
+        #     dy2 = numpy.random.randint(A,size = 1)            
+        # dx3 = numpy.random.randint(2*A,size = 1)
+        # dy3 = numpy.random.randint(2*A,size = 1)
+        # dx3 = dx3 - A; dy3 = dy3 - A;
+        # while(abs(dx3 - dx1) < 25 or abs(dx3 - dx2) < 25):
+        #     print("x3 in while: " , dx3)
+        #     dx3 = numpy.random.randint(A,size = 1)
+        # while(abs(dy3 - dy1) < 25 or abs(dy3 - dy2) < 25):
+        #     print("dy3 in while: " , dy3)
+        #     dy3 = numpy.random.randint(A,size = 1)            
         
         
-        if(dx1 > dx2):
-            destination2 = [dx1[0],dy1[0]]
-            destination1 = [dx2[0],dy2[0]]
-        else:
-            destination1 = [dx1[0],dy1[0]]
-            destination2 = [dx2[0],dy2[0]]                      
+        # if(dx1 > dx2):
+        #     destination2 = [dx1[0],dy1[0]]
+        #     destination1 = [dx2[0],dy2[0]]
+        # else:
+        #     destination1 = [dx1[0],dy1[0]]
+        #     destination2 = [dx2[0],dy2[0]]                      
         
-        destination=[dx3[0],dy3[0]] #destination
+        # destination=[dx3[0],dy3[0]] #destination
 
-        destination1 = [-45.0,25.0]
-        destination2 = [45.0,25.0]    
-        destination = [0.0,50.0]
+        destination1 = [-450.0,250.0]
+        destination2 = [405.0,250.0]    
+        destination = [0.0,500.0]
         
         # dest1_arr[0][mc1] = destination1[0]
         # dest1_arr[1][mc1] = destination1[1]
@@ -558,17 +693,20 @@ def main():
         
         # dest_arr[0][mc1] = dx3[0]
         # dest_arr[1][mc1] = dy3[0]
-        destination = numpy.asarray([destinationx[mc1],destinationy[mc1]]).reshape(1,2)
-        destination1 = numpy.asarray([destination1x[mc1],destination1y[mc1]]).reshape(1,2)
-        destination2 = numpy.asarray([destination2x[mc1],destination2y[mc1]]).reshape(1,2)    
-        # destination = numpy.asarray(destination).reshape(1,2)
-        # destination1 = numpy.asarray(destination1).reshape(1,2)
-        # destination2 = numpy.asarray(destination2).reshape(1,2)    
+        # destination = numpy.asarray([destinationx[mc1],destinationy[mc1]]).reshape(1,2)
+        # destination1 = numpy.asarray([destination1x[mc1],destination1y[mc1]]).reshape(1,2)
+        # destination2 = numpy.asarray([destination2x[mc1],destination2y[mc1]]).reshape(1,2)    
+        destination = numpy.asarray(destination).reshape(1,2)
+        destination1 = numpy.asarray(destination1).reshape(1,2)
+        destination2 = numpy.asarray(destination2).reshape(1,2)    
 
         M = MarkerArray()    
         l = 0;
+        nos = 0; #MAKING nos =0; as we dont want leaders as of now
+        nol = 1;
         shape = Marker.CUBE;
-        for i in range(N+nos+2): #to include shepherd too
+        noc = 5;
+        for i in range(N+noc): #to include shepherd too
             marker = Marker()
             print("i " , i)
             marker.header.frame_id = "/multi_sheep_leader";
@@ -583,7 +721,7 @@ def main():
             
             marker.action = Marker.ADD;
 
-            if(i < N):
+            if(i < N-nol):
                 marker.pose.position.x = x[0][i];            
 
                 marker.pose.position.y = y[0][i];
@@ -597,7 +735,7 @@ def main():
             
             marker.scale.x = 1.0;
             marker.scale.y = 1.0;
-            marker.scale.z = 1.0;
+            marker.scale.z = 2.0;
             
             marker.color.r = 0.0;
             marker.color.g = 1.0;
@@ -606,32 +744,59 @@ def main():
        
             marker.lifetime = rospy.Duration();
 
-            if(i >= N and i<N+nos):
-                marker.ns = "sheperd"
-                marker.pose.position.x = Sh[i-N][0];
-                marker.pose.position.y = Sh[i-N][1];
-                # marker.pose.position.x = x[0][leaderidx[0]]
-                # marker.pose.position.y = y[0][leaderidx[0]]
-                marker.pose.position.z = 2.0
+            if(i >= N-nol and i < N):
                 marker.color.r = 1.0;
-                marker.color.g = 0.0;
+                marker.color.g = 0.0; 
 
-            if(i >= N+nos):
-                marker.ns = "Point"
-                marker.type = Marker.CYLINDER
-                if(l == 0):
-                    marker.pose.position.x = destination1[0][0]
-                    marker.pose.position.y = destination1[0][1]
-                    l = 1;
-                elif(l == 1):
-                    marker.pose.position.x = destination2[0][0]
-                    marker.pose.position.y = destination2[0][1]                
-                    l = 2;
-                marker.color.b = 1.0;
-                marker.color.g = 0.0;
-                marker.scale.x = 2*destinationthreshold;
-                marker.scale.y = 2*destinationthreshold;
-                marker.scale.z = 0.5;   
+            
+            if(i >= N):
+            #    for j in range(10):
+                marker.ns = "circles";
+                
+                marker.id = i;
+                
+                marker.type = Marker.CYLINDER;
+                
+                marker.action = Marker.ADD;  
+
+                marker.scale.x = 20*(i-N+1);
+                marker.scale.y = 20*(i-N+1);
+                marker.scale.z = 1.5 - (i-N)/5.0;
+
+                marker.color.b = 1.0 - (i-N)/5.0;
+                marker.color.g = 0.0
+                marker.color.r = (i-N)/5.0
+                #marker.color.a = 1.0
+
+            # if(i >= N and i<N+nos):
+            #     marker.ns = "sheperd" #now leader
+            #     marker.pose.position.x = leader[i-N][0];
+            #     marker.pose.position.y = leader[i-N][1];                
+            #     # marker.pose.position.x = Sh[i-N][0];
+            #     # marker.pose.position.y = Sh[i-N][1];
+            #     # marker.pose.position.x = x[0][leaderidx[0]]
+            #     # marker.pose.position.y = y[0][leaderidx[0]]
+            #     marker.pose.position.z = 2.0
+            #     marker.color.r = 1.0;
+            #     marker.color.g = 0.0;
+
+
+            # if(i >= N+nos):
+            #     marker.ns = "Point"
+            #     marker.type = Marker.CYLINDER
+            #     if(l == 0):
+            #         marker.pose.position.x = destination1[0][0]
+            #         marker.pose.position.y = destination1[0][1]
+            #         l = 1;
+            #     elif(l == 1):
+            #         marker.pose.position.x = destination2[0][0]
+            #         marker.pose.position.y = destination2[0][1]                
+            #         l = 2;
+            #     marker.color.b = 1.0;
+            #     marker.color.g = 0.0;
+            #     marker.scale.x = 2*destinationthreshold;
+            #     marker.scale.y = 2*destinationthreshold;
+            #     marker.scale.z = 0.5;   
 
             M.markers.append(marker)    
 
@@ -641,16 +806,21 @@ def main():
         entered_once = 0;
         reached1 = 0; reached2 = 0;
         sp = 0.0025
+        count = 0;
+        conc_t_1 = numpy.zeros(N)
+        conc_t = numpy.zeros(N)
         start_time = rospy.get_rostime().to_sec()
         while not rospy.is_shutdown():
 
             pub_marker.publish(M)
 
-            initpoints,V1 = initPhysico(initpoints,V1, deltaT,Sh,leaderidx,rs,dps,rhos,ra,destination,destinationthreshold,destination1,destination2,
-                swarm_split,eaten1,eaten2)
-            print("yolo")
-            print("eaten1: " , eaten1 , " eaten2: " , eaten2 , " reached1 ", reached1, "reached2: " , reached2);
-            print("sp: " , sp ," swarm_split: " , swarm_split)
+            initpoints,V1,count,conc_t,conc_t_1 = initPhysico(initpoints,V1, deltaT,Sh,leaderidx,rs,dps,rhos,ra,destination,destinationthreshold,destination1,destination2,
+                swarm_split,eaten1,eaten2,nol,count,conc_t,conc_t_1)           
+            #initPhysico(initpoints,V1, deltaT,S,leaderidx,rs,dps,rhos,ra,destination,destinationthreshold,destination1,destination2,swarm_split,eaten1,eaten2):
+            print("yolo " , count)
+            count = count + 1;
+            #print("eaten1: " , eaten1 , " eaten2: " , eaten2 , " reached1 ", reached1, "reached2: " , reached2);
+            #print("sp: " , sp ," swarm_split: " , swarm_split)
             #print("x: " , x)
             #print("y: " , y)
             for i in range(N + nos):
@@ -668,80 +838,80 @@ def main():
                     M.markers[i].pose.position.x = Sh[i-N][0]
                     M.markers[i].pose.position.y = Sh[i-N][1]       
 
-            if(swarm_split == 1):
-                #Sh = []
-                if(entered_once == 0):
-                    ind_l1 = numpy.random.choice(numpy.size(grp1),1)
-                    ind_l2 = numpy.random.choice(numpy.size(grp2),1)
-                    #leaderidx = [grp1[0][ind_l1[0]],grp2[0][ind_l2[[0]]]]
-                    #M.markers[leaderidx[0]].color.r = 1.0
-                    #M.markers[leaderidx[1]].color.r = 1.0
-                    entered_once = 1;
-                gcm1 = [numpy.average(initpoints[0,grp1[0]]),numpy.average(initpoints[1,grp1[0]])]
-                gcm2 = [numpy.average(initpoints[0,grp2[0]]),numpy.average(initpoints[1,grp2[0]])]
+            # if(swarm_split == 1):
+            #     #Sh = []
+            #     if(entered_once == 0):
+            #         ind_l1 = numpy.random.choice(numpy.size(grp1),1)
+            #         ind_l2 = numpy.random.choice(numpy.size(grp2),1)
+            #         #leaderidx = [grp1[0][ind_l1[0]],grp2[0][ind_l2[[0]]]]
+            #         #M.markers[leaderidx[0]].color.r = 1.0
+            #         #M.markers[leaderidx[1]].color.r = 1.0
+            #         entered_once = 1;
+            #     gcm1 = [numpy.average(initpoints[0,grp1[0]]),numpy.average(initpoints[1,grp1[0]])]
+            #     gcm2 = [numpy.average(initpoints[0,grp2[0]]),numpy.average(initpoints[1,grp2[0]])]
                     
-                # print("grp1: " , grp1)
-                # print("leader chosen: " , grp1[0][ind_l1[0]])    
-                #sp = 0.25
-                r = rs
-                if(eaten1 == 0 and reached1 == 0):
-                    #S0,a = moveSheperd(initpoints[:,leaderidx[0]],copy.deepcopy(destination1),sp,1)
-                    #pos1 is the point on the line of destination1 and gcm1
-                    m1 = numpy.arctan2(destination1[0][1] - gcm1[1],destination1[0][0] - gcm1[0])
-                    pos1 = [0.0,0.0]
-                    pos1[0] = gcm1[0] - r*numpy.cos(m1)
-                    pos1[1] = gcm1[1] - r*numpy.sin(m1)
-                    print("pos1: " , pos1)
-                    S0,a = moveSheperd(Sh[0],pos1,sp,1)
-                elif(reached1 == 1 and (eaten1 == 0 or eaten2 == 0)):
-                    m1 = numpy.arctan2(destination[0][1] - gcm1[1],destination[0][0] - gcm1[0])
-                    pos1 = [0.0,0.0]
-                    pos1[0] = gcm1[0] - 2*r*numpy.cos(m1)
-                    pos1[1] = gcm1[1] - 2*r*numpy.sin(m1)                    
-                    S0,a = moveSheperd(Sh[0],pos1,sp,1)
-                    print("pos1: " , pos1)                        
-                elif((eaten1 == 1 and eaten2 == 1) and reached1 == 1):
-                    #S0,a = moveSheperd(initpoints[:,leaderidx[0]],copy.deepcopy(destination),sp,1)   
-                    print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
-                    m1 = numpy.arctan2(destination[0][1] - gcm1[1],destination[0][0] - gcm1[0])
-                    sp1 = 0.004
-                    pos1 = [0.0,0.0]
-                    #swarm_split = 0;
-                    pos1[0] = gcm1[0] - (r-5)*numpy.cos(m1)
-                    pos1[1] = gcm1[1] - (r-5)*numpy.sin(m1)
-                    print("pos1: ",pos1)                    
-                    S0,a = moveSheperd(Sh[0],pos1,sp1,1)
-                    #print("pos1: " , pos1)
+            #     # print("grp1: " , grp1)
+            #     # print("leader chosen: " , grp1[0][ind_l1[0]])    
+            #     #sp = 0.25
+            #     r = rs
+            #     if(eaten1 == 0 and reached1 == 0):
+            #         #S0,a = moveSheperd(initpoints[:,leaderidx[0]],copy.deepcopy(destination1),sp,1)
+            #         #pos1 is the point on the line of destination1 and gcm1
+            #         m1 = numpy.arctan2(destination1[0][1] - gcm1[1],destination1[0][0] - gcm1[0])
+            #         pos1 = [0.0,0.0]
+            #         pos1[0] = gcm1[0] - r*numpy.cos(m1)
+            #         pos1[1] = gcm1[1] - r*numpy.sin(m1)
+            #         print("pos1: " , pos1)
+            #         S0,a = moveSheperd(Sh[0],pos1,sp,1)
+            #     elif(reached1 == 1 and (eaten1 == 0 or eaten2 == 0)):
+            #         m1 = numpy.arctan2(destination[0][1] - gcm1[1],destination[0][0] - gcm1[0])
+            #         pos1 = [0.0,0.0]
+            #         pos1[0] = gcm1[0] - 2*r*numpy.cos(m1)
+            #         pos1[1] = gcm1[1] - 2*r*numpy.sin(m1)                    
+                #     S0,a = moveSheperd(Sh[0],pos1,sp,1)
+                #     print("pos1: " , pos1)                        
+                # elif((eaten1 == 1 and eaten2 == 1) and reached1 == 1):
+                #     #S0,a = moveSheperd(initpoints[:,leaderidx[0]],copy.deepcopy(destination),sp,1)   
+                #     print("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA")
+                #     m1 = numpy.arctan2(destination[0][1] - gcm1[1],destination[0][0] - gcm1[0])
+                #     sp1 = 0.004
+                #     pos1 = [0.0,0.0]
+                #     #swarm_split = 0;
+                #     pos1[0] = gcm1[0] - (r-5)*numpy.cos(m1)
+                #     pos1[1] = gcm1[1] - (r-5)*numpy.sin(m1)
+                #     print("pos1: ",pos1)                    
+                #     S0,a = moveSheperd(Sh[0],pos1,sp1,1)
+                #     #print("pos1: " , pos1)
 
-                if(eaten2 == 0 and reached2 == 0):
-                    #S1,a = moveSheperd(initpoints[:,leaderidx[1]],copy.deepcopy(destination2),sp,1)
-                    m2 = numpy.arctan2(destination2[0][1] - gcm2[1],destination2[0][0] - gcm2[0])
-                    pos2 = [0.0,0.0]
-                    pos2[0] = gcm2[0] - (r-5)*numpy.cos(m2)
-                    pos2[1] = gcm2[1] - (r-5)*numpy.sin(m2)                    
-                    #print("pos2: " , pos2)
-                    S1,a = moveSheperd(Sh[1],pos2,sp,1)
-                elif(reached2 == 1 and (eaten1 == 0 or eaten2 == 0)):
-                    m2 = numpy.arctan2(destination[0][1] - gcm2[1],destination[0][0] - gcm2[0])
-                    pos2 = [0.0,0.0]
-                    pos2[0] = gcm2[0] - 2*r*numpy.cos(m2)
-                    pos2[1] = gcm2[1] - 2*r*numpy.sin(m2)                    
-                    S1,a = moveSheperd(Sh[1],pos2,sp,1)
-                    #print("pos1: " , pos1)                                            
-                elif(eaten1 == 1 and eaten2 == 1 and reached2 == 1):
-                    #S1,a = moveSheperd(initpoints[:,leaderidx[1]],copy.deepcopy(destination),sp,1)  
-                    sp1 = 0.004 
-                    m2 = numpy.arctan2(destination[0][1] - gcm2[1],destination[0][0] - gcm2[0])
-                    pos2 = [0.0,0.0]
-                    pos2[0] = gcm2[0] - (r-5)*numpy.cos(m2)
-                    pos2[1] = gcm2[1] - (r-5)*numpy.sin(m2)
-                    print("pos2: " , pos2)                    
-                    S1,a = moveSheperd(Sh[1],pos2,sp1,1)
+                # if(eaten2 == 0 and reached2 == 0):
+                #     #S1,a = moveSheperd(initpoints[:,leaderidx[1]],copy.deepcopy(destination2),sp,1)
+                #     m2 = numpy.arctan2(destination2[0][1] - gcm2[1],destination2[0][0] - gcm2[0])
+                #     pos2 = [0.0,0.0]
+                #     pos2[0] = gcm2[0] - (r-5)*numpy.cos(m2)
+                #     pos2[1] = gcm2[1] - (r-5)*numpy.sin(m2)                    
+                #     #print("pos2: " , pos2)
+                #     S1,a = moveSheperd(Sh[1],pos2,sp,1)
+                # elif(reached2 == 1 and (eaten1 == 0 or eaten2 == 0)):
+                #     m2 = numpy.arctan2(destination[0][1] - gcm2[1],destination[0][0] - gcm2[0])
+                #     pos2 = [0.0,0.0]
+                #     pos2[0] = gcm2[0] - 2*r*numpy.cos(m2)
+                #     pos2[1] = gcm2[1] - 2*r*numpy.sin(m2)                    
+                #     S1,a = moveSheperd(Sh[1],pos2,sp,1)
+                #     #print("pos1: " , pos1)                                            
+                # elif(eaten1 == 1 and eaten2 == 1 and reached2 == 1):
+                #     #S1,a = moveSheperd(initpoints[:,leaderidx[1]],copy.deepcopy(destination),sp,1)  
+                #     sp1 = 0.004 
+                #     m2 = numpy.arctan2(destination[0][1] - gcm2[1],destination[0][0] - gcm2[0])
+                #     pos2 = [0.0,0.0]
+                #     pos2[0] = gcm2[0] - (r-5)*numpy.cos(m2)
+                #     pos2[1] = gcm2[1] - (r-5)*numpy.sin(m2)
+                #     print("pos2: " , pos2)                    
+                #     S1,a = moveSheperd(Sh[1],pos2,sp1,1)
 
-                Sh[0][0] = S0[0][0]
-                Sh[0][1] = S0[0][1]
-                Sh[1][0] = S1[0][0]
-                Sh[1][1] = S1[0][1]                     
+                # Sh[0][0] = S0[0][0]
+                # Sh[0][1] = S0[0][1]
+                # Sh[1][0] = S1[0][0]
+                # Sh[1][1] = S1[0][1]                     
                 # initpoints[0,leaderidx[0]] = S0[0][0]
                 # initpoints[1,leaderidx[0]] = S0[0][1]    
                 # initpoints[0,leaderidx[1]] = S1[0][0]
@@ -761,71 +931,71 @@ def main():
             # print("swarm_split: " , swarm_split)
 
 
-            if(swarm_split == 0):
-                if(abs(Sh[0][1] - Sh[1][1]) < rs):
-                    swarm_split = 1;
-                    grp1 = numpy.where(initpoints[0,:] < 0)
-                    grp2 = numpy.where(initpoints[0,:] > 0)
-                    split_time = rospy.get_rostime().to_sec()
+            # if(swarm_split == 0):
+            #     if(abs(Sh[0][1] - Sh[1][1]) < rs):
+            #         swarm_split = 1;
+            #         grp1 = numpy.where(initpoints[0,:] < 0)
+            #         grp2 = numpy.where(initpoints[0,:] > 0)
+            #         split_time = rospy.get_rostime().to_sec()
 
-            if(swarm_split == 0 and eaten1==0):
-                sp = 0.002
-                gcm = [numpy.average(initpoints[0,:]),numpy.average(initpoints[1,:])]
-                S0,a = moveSheperd(Sh[0],gcm,sp,1)
-                S1,a = moveSheperd(Sh[1],gcm,sp,1)
-                #print("S0: ", S0 , numpy.shape(S0) , " " , numpy.size(S0)
-                Sh[0][0] = S0[0][0]
-                Sh[0][1] = S0[0][1]
-                Sh[1][0] = S1[0][0]
-                Sh[1][1] = S1[0][1]            
+            # if(swarm_split == 0 and eaten1==0):
+            #     sp = 0.002
+            #     gcm = [numpy.average(initpoints[0,:]),numpy.average(initpoints[1,:])]
+            #     S0,a = moveSheperd(Sh[0],gcm,sp,1)
+            #     S1,a = moveSheperd(Sh[1],gcm,sp,1)
+            #     #print("S0: ", S0 , numpy.shape(S0) , " " , numpy.size(S0)
+            #     Sh[0][0] = S0[0][0]
+            #     Sh[0][1] = S0[0][1]
+            #     Sh[1][0] = S1[0][0]
+            #     Sh[1][1] = S1[0][1]            
             
-            dist_shep1 = numpy.linalg.norm(initpoints.T - S0,axis = 1)
-            dist_shep2 = numpy.linalg.norm(initpoints.T - S1,axis = 1)
-            near_shep1 = numpy.where(dist_shep1 <= rs)
-            near_shep2 = numpy.where(dist_shep2 <= rs)
+            # dist_shep1 = numpy.linalg.norm(initpoints.T - S0,axis = 1)
+            # dist_shep2 = numpy.linalg.norm(initpoints.T - S1,axis = 1)
+            # near_shep1 = numpy.where(dist_shep1 <= rs)
+            # near_shep2 = numpy.where(dist_shep2 <= rs)
             #if(numpy.size(near_shep1) > 0 or  numpy.size(near_shep2) > 0):
                 #start_time2 = rospy.get_rostime().to_sec()
 
 
             #Start eating
             #if(swarm_split == 1 and eaten1 == 0 and numpy.size(near_dest1) >= 0.9*numpy.size(grp1)):  
-            dec = 1.0
-            if(swarm_split == 1 and eaten1 == 0):
+            #dec = 0.005      
+            # if(swarm_split == 1 and eaten1 == 0):
                 
-                M.markers[N+nos].scale.x = M.markers[N+nos].scale.x - dec*(numpy.size(near_dest1))         
-                M.markers[N+nos].scale.y = M.markers[N+nos].scale.y - dec*(numpy.size(near_dest1))
-                if(M.markers[N+nos].scale.y < 0.2):
-                    eaten1 = 1;
+            #     M.markers[N+nos].scale.x = M.markers[N+nos].scale.x - dec*(numpy.size(near_dest1))         
+            #     M.markers[N+nos].scale.y = M.markers[N+nos].scale.y - dec*(numpy.size(near_dest1))
+            #     if(M.markers[N+nos].scale.y < 0.2):
+            #         eaten1 = 1;
 
-            if(entered_once ==1 and numpy.size(near_dest1) >= 0.9*numpy.size(grp1)):
-                reached1 = 1;
-            if(eaten1 == 1):
-                reached1 = 1;    
+            # if(entered_once ==1 and numpy.size(near_dest1) >= 0.9*numpy.size(grp1)):
+            #     reached1 = 1;
+            # if(eaten1 == 1):
+            #     reached1 = 1;    
 
 
-            if(swarm_split == 1 and eaten2 == 0):
-                M.markers[N+nos+1].scale.x = M.markers[N+nos+1].scale.x - dec*(numpy.size(near_dest2))         
-                M.markers[N+nos+1].scale.y = M.markers[N+nos+1].scale.y - dec*(numpy.size(near_dest2))
-                if(M.markers[N+nos+1].scale.y < 0.2):
-                    eaten2 = 1;
+            # if(swarm_split == 1 and eaten2 == 0):
+            #     M.markers[N+nos+1].scale.x = M.markers[N+nos+1].scale.x - dec*(numpy.size(near_dest2))         
+            #     M.markers[N+nos+1].scale.y = M.markers[N+nos+1].scale.y - dec*(numpy.size(near_dest2))
+            #     if(M.markers[N+nos+1].scale.y < 0.2):
+            #         eaten2 = 1;
 
-            if(entered_once == 1 and numpy.size(near_dest2) >= 0.9*numpy.size(grp2)):
-                reached2 = 1;        
-            if(eaten2 == 1):
-                reached2 = 1;    
+            # if(entered_once == 1 and numpy.size(near_dest2) >= 0.9*numpy.size(grp2)):
+            #     reached2 = 1;        
+            # if(eaten2 == 1):
+            #     reached2 = 1;    
                 
-            dist1 = numpy.linalg.norm(initpoints.T - destination1,axis = 1)            
-            near_dest1 = numpy.where(dist1 <= destinationthreshold)
+            # dist1 = numpy.linalg.norm(initpoints.T - destination1,axis = 1)            
+            # near_dest1 = numpy.where(dist1 <= destinationthreshold)
 
-            dist2 = numpy.linalg.norm(initpoints.T - destination2,axis = 1)            
-            near_dest2 = numpy.where(dist2 <= destinationthreshold)
+            # dist2 = numpy.linalg.norm(initpoints.T - destination2,axis = 1)            
+            # near_dest2 = numpy.where(dist2 <= destinationthreshold)
 
-            dist = numpy.linalg.norm(initpoints.T - destination,axis = 1)            
-            near_dest = numpy.where(dist <= destinationthreshold + 5.0) #WHY this ??
-            if(numpy.size(near_dest) >= 0.9*(N)):
-                #stop_time = rospy.get_rostime()
-                #print("time taken:" ,stop_time - start_time)
-                eating3 = 1; #START EATING3
+            # dist = numpy.linalg.norm(initpoints.T - destination,axis = 1)            
+            # near_dest = numpy.where(dist <= destinationthreshold + 5.0) #WHY this ??
+            # if(numpy.size(near_dest) >= 0.9*(N)):
+            #     #stop_time = rospy.get_rostime()
+            #     #print("time taken:" ,stop_time - start_time)
+            #     eating3 = 1; #START EATING3
                 #print("STOPPPPPPPPPP")
                 #break;            
 
@@ -835,9 +1005,9 @@ def main():
         #stop_time2 = rospy.get_rostime().to_sec()
         print("MCMCMCMCMCMCMCMCMCMCMMMCMCM")
         print("mc1 : " ,mc1)    
-        stop_time[0][mc1] = rospy.get_rostime().to_sec()
-        split_diff[0][mc1] = split_time[0][mc1] - start_time[0][mc1]
-        diff[0][mc1] = stop_time[0][mc1] - start_time[0][mc1]
+        # stop_time[0][mc1] = rospy.get_rostime().to_sec()
+        # split_diff[0][mc1] = split_time[0][mc1] - start_time[0][mc1]
+        # diff[0][mc1] = stop_time[0][mc1] - start_time[0][mc1]
         #print("diff: " , diff)
     print("++++++++++++++++++++++++++++++++++++++")
     #diff = stop_time - start_time
