@@ -13,7 +13,7 @@ For seeing a visual of how it works, run roscore in one terminal and then:
    of the swarm you are running where the markers are implemented. 
 3. Then you'll need to add MarkerArray from the add button on left side down of RVIZ, you can also add using /topic option, which 
    you'll see after you've clicked on the add button
-4. Then put the Marker Topic as mentioned in the code. Marker Topic is the same as the Publisher name of the marker, which can be found 
-   just below the main().
+4. Then put the Marker Topic as mentioned in the code. Marker Topic is the same as the Publisher name of the marker, which can be 
+   found just below the main().
 
 
