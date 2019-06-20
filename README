@@ -1,20 +1,19 @@
 The two folders above are divided in the following ways:
-1. Husky
+1. husky-kinetic-devel
+This consists of all the files for opening/spawning multi clearpath huskies for simulation in Gazebo(this is a real world environment, with physics pre modelled).
 
-Consists of all the files for opening multi agent simulation in Gazebo.
-
-2. UsingPython2
-
-Consists all the codes written in python. 
+2. using_python2
+Consists all the codes used(in python). 
 
 You need to have ROS-KINETIC installed. ROS comes pre installed with RVIZ and Gazebo. 
 
-For seeing a visual of how it works, 
-1. you'll need to start the RVIZ : command on terminal : rosrun rviz rviz 
-2. then change the Fixed frame tag on the left side top of RVIZ to whatever is mentioned inside the main() function 
-   where the markers are  implemented. 
-3. Then you'll need to add MarkerArray from the add button left side down. 
-4. Then put the Marker Topic as mentioned in the code. Marker Topic is the same as the Publisher name of the marker, 
+For seeing a visual of how it works, run roscore in one terminal and then: 
+1. you'll need to start the RVIZ, command on terminal : rosrun rviz rviz 
+2. RVIZ will open, change the fixed frame tag on the left side top of RVIZ to whatever is mentioned inside the main() function
+   of the swarm you are running where the markers are implemented. 
+3. Then you'll need to add MarkerArray from the add button on left side down of RVIZ, you can also add using /topic option, which 
+   you'll see after you've clicked on the add button
+4. Then put the Marker Topic as mentioned in the code. Marker Topic is the same as the Publisher name of the marker, which can be found 
    just below the main().
 
 
